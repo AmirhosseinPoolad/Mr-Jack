@@ -1,6 +1,9 @@
-#include <stdio.h>
+#include "stdio.h"
+#include "stdlib.h"
+#include "time.h"
 #include "SDL.h"
 #include "GameObject.h"
+#include "Map.h"
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -13,6 +16,7 @@ void CharUpdate(struct GameObject *obj)
 
 int main(int argc, char *argv[])
 {
+  srand(time(NULL));
   SDL_Init(SDL_INIT_VIDEO);
 
   SDL_Window *window = SDL_CreateWindow(
@@ -26,9 +30,10 @@ int main(int argc, char *argv[])
   SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawColor(renderer, 255, 250, 250, SDL_ALPHA_OPAQUE);
 
-  struct GameObject playa;
-  SetupGameObject(&playa, renderer, "assets/wall.jpg", CharUpdate, 100, 100, 100, 100, UP);
-
+  //struct GameObject playa;
+  //SetupGameObject(&playa, renderer, "assets/wall.jpg", CharUpdate, 100, 100, 100, 100, UP);
+  struct node *head = NULL;
+  SetupMap(&head, renderer);
   int isQuit = 0;
   while (!isQuit)
   {
@@ -39,10 +44,8 @@ int main(int argc, char *argv[])
         isQuit = 1;
     }
 
-    playa.update_function(&playa);
-
     SDL_RenderClear(renderer);
-    GORender(&playa, renderer);
+    RenderMap(&head, renderer);
     SDL_RenderPresent(renderer);
     SDL_Delay(200);
   }
