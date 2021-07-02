@@ -9,7 +9,8 @@
 
 void MapUpdate(struct GameObject *obj)
 {
-    return;
+    obj->orientation++;
+    obj->orientation = (obj->orientation) % 4;
 }
 
 struct node *newNode(struct GameObject obj)
@@ -63,6 +64,14 @@ void RenderMap(struct node **head, SDL_Renderer *rend)
     }
 }
 
-struct node *GiveCoordinates(struct node **head, int x, int y)
+struct node *GetCoordinates(struct node **head, int x, int y)
 {
+    //need to do 3y + x next operations
+    int count = (3 * y) + x;
+    struct node *current = *head;
+    for (int i = 0; i < count; i++)
+    {
+        current = current->next;
+    }
+    return current;
 }

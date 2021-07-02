@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
 
   //struct GameObject playa;
   //SetupGameObject(&playa, renderer, "assets/wall.jpg", CharUpdate, 100, 100, 100, 100, UP);
-  struct node *head = NULL;
-  SetupMap(&head, renderer);
+  struct node *mapFront = NULL;
+  SetupMap(&mapFront, renderer);
   int isQuit = 0;
   while (!isQuit)
   {
@@ -43,9 +43,10 @@ int main(int argc, char *argv[])
       if (e.type == SDL_QUIT)
         isQuit = 1;
     }
-
+    struct node *node = GetCoordinates(&mapFront, rand()%3, rand()%3);
+    node->obj.update_function(&(node->obj)); //testing
     SDL_RenderClear(renderer);
-    RenderMap(&head, renderer);
+    RenderMap(&mapFront, renderer);
     SDL_RenderPresent(renderer);
     SDL_Delay(200);
   }

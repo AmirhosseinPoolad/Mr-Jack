@@ -14,6 +14,7 @@ int pushEnd(struct GameObject obj, struct node **head);
 
 void SetupMap(struct node **head, SDL_Renderer *rend);
 void RenderMap(struct node **head, SDL_Renderer *rend);
-struct node *GiveCoordinates(struct node **head, int x, int y);
+struct node *GetCoordinates(struct node **head, int x, int y);
+void FindCoordinates(struct node **head, struct node current, int *x, int *y); //TODO
 
 #endif
