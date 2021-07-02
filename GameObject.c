@@ -40,7 +40,5 @@ void SetupGameObject(struct GameObject *obj, SDL_Renderer *renderer, char *textu
 void GORender(struct GameObject *obj, SDL_Renderer *renderer)
 {
     double rotation = obj->orientation * 90;
-    //todo: implement rotation
     SDL_RenderCopyEx(renderer, obj->texture, NULL, &(obj->rect), rotation, NULL, SDL_FLIP_NONE);
-    //SDL_RenderCopy(renderer,obj->texture,NULL,&(obj->rect));
 }
