@@ -30,8 +30,6 @@ int main(int argc, char *argv[])
   SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawColor(renderer, 255, 250, 250, SDL_ALPHA_OPAQUE);
 
-  //struct GameObject playa;
-  //SetupGameObject(&playa, renderer, "assets/wall.jpg", CharUpdate, 100, 100, 100, 100, UP);
   struct node *mapFront = NULL;
   SetupMap(&mapFront, renderer);
   int isQuit = 0;
@@ -43,7 +41,7 @@ int main(int argc, char *argv[])
       if (e.type == SDL_QUIT)
         isQuit = 1;
     }
-    struct node *node = GetCoordinates(&mapFront, rand()%3, rand()%3);
+    struct node *node = GetFromCoordinates(&mapFront, rand()%3, rand()%3);
     node->obj.update_function(&(node->obj)); //testing
     SDL_RenderClear(renderer);
     RenderMap(&mapFront, renderer);

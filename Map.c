@@ -64,7 +64,7 @@ void RenderMap(struct node **head, SDL_Renderer *rend)
     }
 }
 
-struct node *GetCoordinates(struct node **head, int x, int y)
+struct node *GetFromCoordinates(struct node **head, int x, int y)
 {
     //need to do 3y + x next operations
     int count = (3 * y) + x;
@@ -74,4 +74,18 @@ struct node *GetCoordinates(struct node **head, int x, int y)
         current = current->next;
     }
     return current;
+}
+
+void FindCoordinates(struct node **head, struct node *input, int *x, int *y)
+{
+    int count = 0;
+    struct node *current = *head;
+    while (1)
+    {
+        if (current == input)
+            break;
+        count++;
+    }
+    *y = count / 3;
+    *x = count % 3;
 }
