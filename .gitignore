@@ -55,3 +55,4 @@ dkms.conf
 #Build and assets folder
 /assets
 /build
+/.vscode

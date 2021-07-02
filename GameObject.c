@@ -6,7 +6,7 @@
 
 void SetupGameObject(struct GameObject *obj, SDL_Renderer *renderer, char *textureAddress,
                      void (*update_function)(struct GameObject *self),
-                     int x, int y, int w, int h)
+                     int x, int y, int w, int h, enum Orientation orientation)
 {
     int req_format = STBI_rgb_alpha;
     int width, height, orig_format;
@@ -33,11 +33,14 @@ void SetupGameObject(struct GameObject *obj, SDL_Renderer *renderer, char *textu
     obj->rect.w = w;
     obj->rect.x = x;
     obj->rect.y = y;
+
+    obj->orientation = orientation;
 }
 
 void GORender(struct GameObject *obj, SDL_Renderer *renderer)
 {
+    double rotation = obj->orientation * 90;
     //todo: implement rotation
-    //SDL_RenderCopyEx()
-    SDL_RenderCopy(renderer,obj->texture,NULL,&(obj->rect));
+    SDL_RenderCopyEx(renderer, obj->texture, NULL, &(obj->rect), rotation, NULL, SDL_FLIP_NONE);
+    //SDL_RenderCopy(renderer,obj->texture,NULL,&(obj->rect));
 }

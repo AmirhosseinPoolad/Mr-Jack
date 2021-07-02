@@ -20,7 +20,7 @@ struct GameObject
 
 void SetupGameObject(struct GameObject *obj, SDL_Renderer *renderer, char *textureAddress,
                      void (*update_function)(struct GameObject *self),
-                     int x, int y, int w, int h);
+                     int x, int y, int w, int h, enum Orientation orientation);
 
 void GORender(struct GameObject *obj, SDL_Renderer *renderer);
 #endif
