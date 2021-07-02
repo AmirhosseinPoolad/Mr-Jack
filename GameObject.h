@@ -18,9 +18,16 @@ struct GameObject
     enum Orientation orientation;                     //rotation
 };
 
-void SetupGameObject(struct GameObject *obj, SDL_Renderer *renderer, char *textureAddress,
-                     void (*update_function)(struct GameObject *self),
-                     int x, int y, int w, int h, enum Orientation orientation);
+SDL_Texture *SetupTexture(char *path, SDL_Renderer *renderer);
+
+void SetupGameObjectFromPath(struct GameObject *obj, SDL_Renderer *renderer, char *textureAddress,
+                             void (*update_function)(struct GameObject *self),
+                             int x, int y, int w, int h, enum Orientation orientation);
+
+void SetupGameObjectWithTexture(struct GameObject *obj, SDL_Renderer *renderer, SDL_Texture *texture,
+                                void (*update_function)(struct GameObject *self),
+                                int x, int y, int w, int h, enum Orientation orientation);
 
 void GORender(struct GameObject *obj, SDL_Renderer *renderer);
+
 #endif

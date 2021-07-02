@@ -4,15 +4,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-//loads an image from textureAddress and sets up a GameObject with the image
-void SetupGameObject(struct GameObject *obj, SDL_Renderer *renderer, char *textureAddress,
-                     void (*update_function)(struct GameObject *self),
-                     int x, int y, int w, int h, enum Orientation orientation)
+//loads a texture from path
+SDL_Texture *SetupTexture(char *path, SDL_Renderer *renderer)
 {
-    //neccesarry to convert an stbi loaded image into an SDL_Surface
     int req_format = STBI_rgb_alpha;
     int width, height, orig_format;
-    char *data = stbi_load(textureAddress, &width, &height, &orig_format, req_format);
+    char *data = stbi_load(path, &width, &height, &orig_format, req_format);
     int depth, pitch;
     Uint32 pixel_format;
     if (req_format == STBI_rgb)
@@ -31,12 +28,21 @@ void SetupGameObject(struct GameObject *obj, SDL_Renderer *renderer, char *textu
     //we use textures for hardware rendering so we don't need the surface afterwards
     SDL_Surface *surf = SDL_CreateRGBSurfaceWithFormatFrom((void *)data, width, height, depth, pitch, pixel_format);
     SDL_Texture *text = SDL_CreateTextureFromSurface(renderer, surf);
-    obj->texture = text;
     //now that the texture is made, we don't need to surface and the pixel data anymore
     SDL_FreeSurface(surf);
     stbi_image_free(data);
     data = NULL;
     surf = NULL;
+    return text;
+}
+
+//loads an image from textureAddress and sets up a GameObject with the image
+void SetupGameObjectFromPath(struct GameObject *obj, SDL_Renderer *renderer, char *textureAddress,
+                             void (*update_function)(struct GameObject *self),
+                             int x, int y, int w, int h, enum Orientation orientation)
+{
+    SDL_Texture *text = SetupTexture(textureAddress, renderer);
+    obj->texture = text;
 
     obj->update_function = update_function;
     obj->rect.h = h;
@@ -44,6 +50,19 @@ void SetupGameObject(struct GameObject *obj, SDL_Renderer *renderer, char *textu
     obj->rect.x = x;
     obj->rect.y = y;
 
+    obj->orientation = orientation;
+}
+
+void SetupGameObjectWithTexture(struct GameObject *obj, SDL_Renderer *renderer, SDL_Texture *texture,
+                                void (*update_function)(struct GameObject *self),
+                                int x, int y, int w, int h, enum Orientation orientation)
+{
+    obj->texture = texture;
+    obj->update_function = update_function;
+    obj->rect.h = h;
+    obj->rect.w = w;
+    obj->rect.x = x;
+    obj->rect.y = y;
     obj->orientation = orientation;
 }
 
