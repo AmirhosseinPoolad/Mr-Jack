@@ -11,11 +11,6 @@ void CharUpdate(struct GameObject *obj)
   obj->orientation = obj->orientation % 4;
 }
 
-void EnemyUpdate(struct GameObject *obj)
-{
-  printf("no\n");
-}
-
 int main(int argc, char *argv[])
 {
   SDL_Init(SDL_INIT_VIDEO);
