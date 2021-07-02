@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
   SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawColor(renderer, 255, 250, 250, SDL_ALPHA_OPAQUE);
 
-  struct node *mapFront = NULL;
-  SetupMap(&mapFront, renderer);
+  struct node *map = NULL;
+  SetupMap(&map, renderer);
   int isQuit = 0;
   while (!isQuit)
   {
@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
       if (e.type == SDL_QUIT)
         isQuit = 1;
     }
-    struct node *node = GetFromCoordinates(&mapFront, rand()%3, rand()%3);
-    node->obj.update_function(&(node->obj)); //testing
+    struct node *node = GetFromCoordinates(&map, rand() % 3, rand() % 3);
+    node->map.mapObj.update_function(&(node->map.mapObj)); //testing
     SDL_RenderClear(renderer);
-    RenderMap(&mapFront, renderer);
+    RenderMap(&map, renderer);
     SDL_RenderPresent(renderer);
     SDL_Delay(200);
   }

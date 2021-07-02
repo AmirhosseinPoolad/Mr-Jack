@@ -3,14 +3,27 @@
 
 #include "GameObject.h"
 
+struct Map
+{
+    struct GameObject mapObj;
+    struct GameObject susObject;
+    int isShowingSuspect;
+};
+
 struct node
 {
-    struct GameObject obj;
+    struct Map map;
     struct node *next;
 };
 
-struct node *newNode(struct GameObject obj);
-int pushEnd(struct GameObject obj, struct node **head);
+struct SuspectTexture
+{
+    SDL_Texture *tex;
+    int isUsed;
+};
+
+struct node *newNode(struct Map map);
+int pushEnd(struct Map map, struct node **head);
 
 void SetupMap(struct node **head, SDL_Renderer *rend);
 void RenderMap(struct node **head, SDL_Renderer *rend);
