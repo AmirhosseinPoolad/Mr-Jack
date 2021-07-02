@@ -3,10 +3,10 @@
 #include "GameObject.h"
 #include "Map.h"
 
-#define MAP_START_X 100
-#define MAP_START_Y 60
-#define TILE_HEIGHT 100
-#define TILE_WIDTH 100
+#define MAP_START_X 15
+#define MAP_START_Y 15
+#define TILE_HEIGHT 140
+#define TILE_WIDTH 140
 
 void MapUpdate(struct GameObject *obj)
 {
