@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
       0);
 
   SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  SDL_SetRenderDrawColor(renderer, 255, 200, 100, SDL_ALPHA_OPAQUE);
+  SDL_SetRenderDrawColor(renderer, 255, 250, 250, SDL_ALPHA_OPAQUE);
 
   struct GameObject playa;
   SetupGameObject(&playa, renderer, "assets/wall.jpg", CharUpdate, 100, 100, 100, 100, UP);
