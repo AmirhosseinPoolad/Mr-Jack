@@ -115,16 +115,72 @@ struct node *GetTileFromCoordinates(struct node **head, int x, int y)
     return current;
 }
 
-struct node *GetTileFromScreenCoordinates(struct node **head, int x, int y)
+struct node *GetTileFromScreenCoordinates(struct node **head, int screenX, int screenY)
 {
     struct node *current;
     SDL_Point coords;
-    coords.x = x;
-    coords.y = y;
+    coords.x = screenX;
+    coords.y = screenY;
     for (current = *head; current != NULL; current = current->next)
     {
         if (SDL_PointInRect(&coords, &(current->map.mapObj.rect)))
             return current;
     }
     return NULL;
+}
+
+void SwapNodes(struct node **head, struct node *node1, struct node *node2)
+{
+    if (*head == NULL)
+    {
+        return;
+    }
+
+    struct node *prev1 = NULL;
+    struct node *curr1 = *head;
+    while (curr1 && curr1 != node1)
+    {
+        prev1 = curr1;
+        curr1 = curr1->next;
+    }
+
+    struct node *prev2 = NULL;
+    struct node *curr2 = *head;
+    while (curr2 && curr2 != node2)
+    {
+        prev2 = curr2;
+        curr2 = curr2->next;
+    }
+    if (curr1 == NULL || curr2 == NULL)
+        return;
+
+    if (prev1 == NULL) //node1 is head
+        *head = curr2;
+    else
+        prev1->next = curr2;
+
+    if (prev2 == NULL) //node2 is head
+        *head = curr1;
+    else
+        prev2->next = curr1;
+
+    struct node *tmp = curr2->next;
+    curr2->next = curr1->next;
+    curr1->next = tmp;
+    SwapTiles(curr1,curr2);
+}
+
+void SwapTiles(struct node *node1, struct node *node2) //swaps the Renderables' SDL_Rect and Orientation
+{
+    struct Renderable tmp = node1->map.mapObj;
+    node1->map.mapObj.rect = node2->map.mapObj.rect;
+    node1->map.mapObj.orientation = node2->map.mapObj.orientation;
+    node2->map.mapObj.rect = tmp.rect;
+    node2->map.mapObj.orientation = tmp.orientation;
+
+    tmp = node1->map.susObject;
+    node1->map.susObject.rect = node2->map.susObject.rect;
+    node1->map.susObject.orientation = node2->map.susObject.orientation;
+    node2->map.susObject.rect = tmp.rect;
+    node2->map.susObject.orientation = tmp.orientation;
 }
