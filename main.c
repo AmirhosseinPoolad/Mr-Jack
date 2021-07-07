@@ -8,12 +8,6 @@
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
-void CharUpdate(struct GameObject *obj)
-{
-  obj->orientation++;
-  obj->orientation = obj->orientation % 4;
-}
-
 int main(int argc, char *argv[])
 {
   srand(time(NULL));
@@ -36,13 +30,19 @@ int main(int argc, char *argv[])
   while (!isQuit)
   {
     SDL_Event e;
+    SDL_Point mousePos;
     while (SDL_PollEvent(&e) != 0)
     {
       if (e.type == SDL_QUIT)
         isQuit = 1;
+      if ((e.type == SDL_MOUSEBUTTONDOWN) && (e.button.button == SDL_BUTTON(SDL_BUTTON_LEFT)))
+      {
+        SDL_GetMouseState(&mousePos.x, &mousePos.y);
+        struct node *tile = GetTileFromScreenCoordinates(&map, mousePos.x, mousePos.y);
+        if (tile != NULL)
+          tile->map.Update(&(tile->map.mapObj));
+      }
     }
-    struct node *node = GetFromCoordinates(&map, rand() % 3, rand() % 3);
-    node->map.mapObj.update_function(&(node->map.mapObj)); //testing
     SDL_RenderClear(renderer);
     RenderMap(&map, renderer);
     SDL_RenderPresent(renderer);

@@ -10,24 +10,21 @@ enum Orientation
     RIGHT
 };
 
-struct GameObject
+struct Renderable
 {
-    void (*update_function)(struct GameObject *self); //pointer to a generic update function to call every frame
-    SDL_Rect rect;                                    //position and size
-    SDL_Texture *texture;                             //texture
-    enum Orientation orientation;                     //rotation
+    SDL_Rect rect;                //position and size
+    SDL_Texture *texture;         //texture
+    enum Orientation orientation; //rotation
 };
 
 SDL_Texture *SetupTexture(char *path, SDL_Renderer *renderer);
 
-void SetupGameObjectFromPath(struct GameObject *obj, SDL_Renderer *renderer, char *textureAddress,
-                             void (*update_function)(struct GameObject *self),
+void SetupRenderableFromPath(struct Renderable *obj, SDL_Renderer *renderer, char *textureAddress,
                              int x, int y, int w, int h, enum Orientation orientation);
 
-void SetupGameObjectWithTexture(struct GameObject *obj, SDL_Renderer *renderer, SDL_Texture *texture,
-                                void (*update_function)(struct GameObject *self),
+void SetupRenderableWithTexture(struct Renderable *obj, SDL_Renderer *renderer, SDL_Texture *texture,
                                 int x, int y, int w, int h, enum Orientation orientation);
 
-void GORender(struct GameObject *obj, SDL_Renderer *renderer);
+void GORender(struct Renderable *obj, SDL_Renderer *renderer);
 
 #endif

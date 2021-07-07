@@ -1,14 +1,14 @@
+#include "Map.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include "GameObject.h"
-#include "Map.h"
 
 #define MAP_START_X 15
 #define MAP_START_Y 15
 #define TILE_HEIGHT 140
 #define TILE_WIDTH 140
 
-void MapUpdate(struct GameObject *obj)
+void MapUpdate(struct Renderable *obj)
 {
     obj->orientation++;
     obj->orientation = (obj->orientation) % 4;
@@ -54,19 +54,19 @@ void SetupMap(struct node **head, SDL_Renderer *rend)
     {
         for (int j = 0; j < 3; j++)
         {
-            struct GameObject mapObj;
-            SetupGameObjectWithTexture(&mapObj, rend, mapTex, MapUpdate,
+            struct Renderable mapObj;
+            SetupRenderableWithTexture(&mapObj, rend, mapTex,
                                        MAP_START_X + (j * TILE_WIDTH), MAP_START_Y + (i * TILE_HEIGHT),
                                        TILE_WIDTH, TILE_HEIGHT, rand() % 4);
 
-            struct GameObject susObj;
-
+            struct Renderable susObj;
+            int index;
             while (1)
             {
-                int index = rand() % 9;
+                index = rand() % 9;
                 if (!textures[index].isUsed)
                 {
-                    SetupGameObjectWithTexture(&susObj, rend, textures[index].tex, NULL,
+                    SetupRenderableWithTexture(&susObj, rend, textures[index].tex,
                                                MAP_START_X + (j * TILE_WIDTH) + (TILE_WIDTH / 3),
                                                MAP_START_Y + (i * TILE_HEIGHT) + (TILE_HEIGHT / 3),
                                                TILE_WIDTH / 3, TILE_HEIGHT / 3, UP);
@@ -78,6 +78,11 @@ void SetupMap(struct node **head, SDL_Renderer *rend)
             map.mapObj = mapObj;
             map.susObject = susObj;
             map.isShowingSuspect = 1;
+            map.susIndex = index;
+            map.Update = MapUpdate;
+            map.OnMouseDown = NULL;
+            SDL_Point coords = {j, i};
+            map.coordinates = coords;
             pushEnd(map, head);
         }
     }
@@ -98,7 +103,7 @@ void RenderMap(struct node **head, SDL_Renderer *rend)
     }
 }
 
-struct node *GetFromCoordinates(struct node **head, int x, int y)
+struct node *GetTileFromCoordinates(struct node **head, int x, int y)
 {
     //need to do 3y + x next operations
     int count = (3 * y) + x;
@@ -110,16 +115,16 @@ struct node *GetFromCoordinates(struct node **head, int x, int y)
     return current;
 }
 
-void FindCoordinates(struct node **head, struct node *input, int *x, int *y)
+struct node *GetTileFromScreenCoordinates(struct node **head, int x, int y)
 {
-    int count = 0;
-    struct node *current = *head;
-    while (1)
+    struct node *current;
+    SDL_Point coords;
+    coords.x = x;
+    coords.y = y;
+    for (current = *head; current != NULL; current = current->next)
     {
-        if (current == input)
-            break;
-        count++;
+        if (SDL_PointInRect(&coords, &(current->map.mapObj.rect)))
+            return current;
     }
-    *y = count / 3;
-    *x = count % 3;
+    return NULL;
 }

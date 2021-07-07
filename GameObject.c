@@ -1,5 +1,7 @@
 #include "GameObject.h"
+
 #include "SDL.h"
+#include "Map.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -36,15 +38,13 @@ SDL_Texture *SetupTexture(char *path, SDL_Renderer *renderer)
     return text;
 }
 
-//loads an image from textureAddress and sets up a GameObject with the image
-void SetupGameObjectFromPath(struct GameObject *obj, SDL_Renderer *renderer, char *textureAddress,
-                             void (*update_function)(struct GameObject *self),
+//loads an image from textureAddress and sets up a Renderable with the image
+void SetupRenderableFromPath(struct Renderable *obj, SDL_Renderer *renderer, char *textureAddress,
                              int x, int y, int w, int h, enum Orientation orientation)
 {
     SDL_Texture *text = SetupTexture(textureAddress, renderer);
     obj->texture = text;
 
-    obj->update_function = update_function;
     obj->rect.h = h;
     obj->rect.w = w;
     obj->rect.x = x;
@@ -53,12 +53,10 @@ void SetupGameObjectFromPath(struct GameObject *obj, SDL_Renderer *renderer, cha
     obj->orientation = orientation;
 }
 
-void SetupGameObjectWithTexture(struct GameObject *obj, SDL_Renderer *renderer, SDL_Texture *texture,
-                                void (*update_function)(struct GameObject *self),
+void SetupRenderableWithTexture(struct Renderable *obj, SDL_Renderer *renderer, SDL_Texture *texture,
                                 int x, int y, int w, int h, enum Orientation orientation)
 {
     obj->texture = texture;
-    obj->update_function = update_function;
     obj->rect.h = h;
     obj->rect.w = w;
     obj->rect.x = x;
@@ -66,7 +64,7 @@ void SetupGameObjectWithTexture(struct GameObject *obj, SDL_Renderer *renderer, 
     obj->orientation = orientation;
 }
 
-void GORender(struct GameObject *obj, SDL_Renderer *renderer) //renders the GameObject
+void GORender(struct Renderable *obj, SDL_Renderer *renderer) //renders the Renderable
 {
     double rotation = obj->orientation * 90;
     SDL_RenderCopyEx(renderer, obj->texture, NULL, &(obj->rect), rotation, NULL, SDL_FLIP_NONE);

@@ -2,11 +2,16 @@
 #define MAP_H
 
 #include "GameObject.h"
+#include "SDL.h"
 
 struct Map
 {
-    struct GameObject mapObj;
-    struct GameObject susObject;
+    struct Renderable mapObj;
+    struct Renderable susObject;
+    void (*Update)(struct Renderable *self);
+    void (*OnMouseDown)(struct Renderable *self);
+    SDL_Point coordinates;
+    int susIndex;
     int isShowingSuspect;
 };
 
@@ -27,7 +32,7 @@ int pushEnd(struct Map map, struct node **head);
 
 void SetupMap(struct node **head, SDL_Renderer *rend);
 void RenderMap(struct node **head, SDL_Renderer *rend);
-struct node *GetFromCoordinates(struct node **head, int x, int y);
-void FindCoordinates(struct node **head, struct node *input, int *x, int *y); //TODO
+struct node *GetTileFromCoordinates(struct node **head, int x, int y);
+struct node *GetTileFromScreenCoordinates(struct node **head, int x, int y);
 
 #endif
