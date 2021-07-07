@@ -6,7 +6,7 @@
 #include "Map.h"
 
 #define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_HEIGHT 800
 
 enum GameState //TODO: Implement these
 {
@@ -17,8 +17,19 @@ enum GameState //TODO: Implement these
   PAUSE
 };
 
+enum PlayState
+{
+  DEAL_TOKEN,
+  SELECT_TOKEN,
+  REMOVE_TOKENS,
+  TILE_SWAP,
+  TILE_ROTATE
+};
+
 void ClickSwap(int mouseDown, SDL_Point mousePos, struct node **map);
 void ClickRotate(SDL_Point mousePos, struct node **map);
+void SetupDTPositions(SDL_Point DTPositions[12]);
+void IncrementDTPos(SDL_Point DTPositions[12], struct Renderable *dt, int amount);
 
 int main(int argc, char *argv[])
 {
@@ -38,9 +49,21 @@ int main(int argc, char *argv[])
 
   struct node *map = NULL;
   SetupMap(&map, renderer);
+
+  SDL_Point DTPositions[12]; //positions for detective tokens around the board
+                             //starts from top left and goes clockwise
+  SetupDTPositions(DTPositions);
+  struct Renderable holmes, watson, toby;
+  SetupRenderableFromPath(&holmes, renderer, "assets/detective_tokens/Holmes.jpg",
+                          DTPositions[11].x, DTPositions[11].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, UP);
+  SetupRenderableFromPath(&watson, renderer, "assets/detective_tokens/Watson.jpg",
+                          DTPositions[3].x, DTPositions[3].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, UP);
+  SetupRenderableFromPath(&toby, renderer, "assets/detective_tokens/Toby.jpg",
+                          DTPositions[7].x, DTPositions[7].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, UP);
+
   int isQuit = 0;
-  int state;
-  struct node *tiles[2] = {NULL, NULL};
+  int gameState;
+  int playState = TILE_ROTATE;
   while (!isQuit)
   {
     //1. Handle Input
@@ -58,14 +81,29 @@ int main(int argc, char *argv[])
       }
     }
     //2. Game Logic
-    ClickSwap(mouseDown, mousePos, &map);
-    /*if (mouseDown)
-      ClickRotate(mousePos, &map);*/
+    switch (playState)
+    {
+    case TILE_SWAP:
+      ClickSwap(mouseDown, mousePos, &map);
+      break;
+    case TILE_ROTATE:
+      if (mouseDown)
+        ClickRotate(mousePos, &map);
+      break;
+    default:
+      ClickSwap(mouseDown, mousePos, &map);
+      break;
+    }
     //3. Render
     SDL_RenderClear(renderer);
+
     RenderMap(&map, renderer);
+    GORender(&holmes, renderer);
+    GORender(&watson, renderer);
+    GORender(&toby, renderer);
+
     SDL_RenderPresent(renderer);
-    SDL_Delay(16);
+    SDL_Delay(200);
   }
   SDL_DestroyWindow(window);
   SDL_DestroyRenderer(renderer);
@@ -106,7 +144,64 @@ void ClickRotate(SDL_Point mousePos, struct node **map)
   else //clicked left half, ccw
   {
     tile->map.mapObj.orientation = (tile->map.mapObj.orientation - 1);
-    if (tile->map.mapObj.orientation >= 4)
-      tile->map.mapObj.orientation = RIGHT; //c doesn't do modular arithmetic correctly so we need to handle negative numbers manually
+    if (tile->map.mapObj.orientation >= 4) //enums are unsigned so we need to check for overflow and not negative numbers
+      tile->map.mapObj.orientation = RIGHT;
   }
+}
+
+void SetupDTPositions(SDL_Point DTPositions[12])
+{
+  for (int i = 0; i < 3; i++)
+  {
+    DTPositions[i].x = MAP_START_X + (i * TILE_WIDTH) + (TILE_WIDTH / 3);
+    DTPositions[i].y = MAP_START_Y + (0 * TILE_HEIGHT) + (TILE_HEIGHT / 3) - (TILE_HEIGHT);
+  }
+  for (int i = 0; i < 3; i++)
+  {
+    DTPositions[i + 3].x = MAP_START_X + (2 * TILE_WIDTH) + (TILE_WIDTH / 3) + (TILE_WIDTH);
+    DTPositions[i + 3].y = MAP_START_Y + (i * TILE_HEIGHT) + (TILE_HEIGHT / 3);
+  }
+  for (int i = 0; i < 3; i++)
+  {
+    DTPositions[i + 6].x = MAP_START_X + ((2 - i) * TILE_WIDTH) + (TILE_WIDTH / 3);
+    DTPositions[i + 6].y = MAP_START_Y + (2 * TILE_HEIGHT) + (TILE_HEIGHT / 3) + (TILE_HEIGHT);
+  }
+  for (int i = 0; i < 3; i++)
+  {
+    DTPositions[i + 9].x = MAP_START_X + (0 * TILE_WIDTH) + (TILE_WIDTH / 3) - (TILE_WIDTH);
+    DTPositions[i + 9].y = MAP_START_Y + ((2 - i) * TILE_HEIGHT) + (TILE_HEIGHT / 3);
+  }
+}
+
+void IncrementDTPos(SDL_Point DTPositions[12], struct Renderable *dt, int amount)
+{
+  //find the index of dt
+  int index = 0;
+  SDL_Point pos;
+  pos.x = dt->rect.x;
+  pos.y = dt->rect.y;
+  for (int i = 0; i < 12; i++)
+  {
+    if ((DTPositions[i].x == pos.x) && (DTPositions[i].y == pos.y))
+    {
+      index = i;
+      break;
+    }
+  }
+  //increment index
+  index += amount;
+  if (index >= 12)
+  {
+    index = index % 12;
+  }
+  else if (index < 0)
+  {
+    while (index < 0)
+    {
+      index += 12;
+    }
+  }
+  //apply new index to dt
+  dt->rect.x = DTPositions[index].x;
+  dt->rect.y = DTPositions[index].y;
 }

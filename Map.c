@@ -3,10 +3,7 @@
 #include <stdio.h>
 #include "GameObject.h"
 
-#define MAP_START_X 15
-#define MAP_START_Y 15
-#define TILE_HEIGHT 140
-#define TILE_WIDTH 140
+
 
 void MapUpdate(struct Renderable *obj)
 {
@@ -167,7 +164,7 @@ void SwapNodes(struct node **head, struct node *node1, struct node *node2)
     struct node *tmp = curr2->next;
     curr2->next = curr1->next;
     curr1->next = tmp;
-    SwapTiles(curr1,curr2);
+    SwapTiles(curr1, curr2);
 }
 
 void SwapTiles(struct node *node1, struct node *node2) //swaps the Renderables' SDL_Rect and Orientation
