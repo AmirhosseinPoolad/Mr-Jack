@@ -17,6 +17,9 @@ enum GameState //TODO: Implement these
   PAUSE
 };
 
+void ClickSwap(int mouseDown, SDL_Point mousePos, struct node **map);
+void ClickRotate(SDL_Point mousePos, struct node **map);
+
 int main(int argc, char *argv[])
 {
   srand(time(NULL));
@@ -52,31 +55,12 @@ int main(int argc, char *argv[])
       {
         SDL_GetMouseState(&mousePos.x, &mousePos.y);
         mouseDown = 1;
-        /*struct node *tile = GetTileFromScreenCoordinates(&map, mousePos.x, mousePos.y);
-        if (tile != NULL)
-          tile->map.Update(&(tile->map.mapObj));*/
       }
     }
     //2. Game Logic
-    if (mouseDown)
-    {
-      if (tiles[0] == NULL)
-      {
-        tiles[0] = GetTileFromScreenCoordinates(&map, mousePos.x, mousePos.y);
-      }
-      else if ((tiles[0] != NULL) && (tiles[1] == NULL))
-      {
-        tiles[1] = GetTileFromScreenCoordinates(&map, mousePos.x, mousePos.y);
-      }
-    }
-    if ((tiles[0] != NULL) && (tiles[1] != NULL))
-    {
-      //tiles[0]->map.Update(&(tiles[0]->map.mapObj));
-      //tiles[1]->map.Update(&(tiles[1]->map.mapObj));
-      SwapNodes(&map,tiles[0],tiles[1]);
-      tiles[0] = NULL;
-      tiles[1] = NULL;
-    }
+    ClickSwap(mouseDown, mousePos, &map);
+    /*if (mouseDown)
+      ClickRotate(mousePos, &map);*/
     //3. Render
     SDL_RenderClear(renderer);
     RenderMap(&map, renderer);
@@ -88,4 +72,41 @@ int main(int argc, char *argv[])
   SDL_Quit();
 
   return 0;
+}
+
+void ClickSwap(int mouseDown, SDL_Point mousePos, struct node **map)
+{
+  static struct node *tiles[2] = {NULL, NULL};
+  if (mouseDown)
+  {
+    if (tiles[0] == NULL)
+    {
+      tiles[0] = GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y);
+    }
+    else if ((tiles[0] != NULL) && (tiles[1] == NULL))
+    {
+      tiles[1] = GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y);
+    }
+  }
+  if ((tiles[0] != NULL) && (tiles[1] != NULL))
+  {
+    SwapNodes(map, tiles[0], tiles[1]);
+    tiles[0] = NULL;
+    tiles[1] = NULL;
+  }
+}
+
+void ClickRotate(SDL_Point mousePos, struct node **map)
+{
+  struct node *tile = GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y);
+  if (tile == NULL)
+    return;
+  if (mousePos.x >= tile->map.mapObj.rect.x + (tile->map.mapObj.rect.w / 2)) //clicked right half, cw
+    tile->map.mapObj.orientation = (tile->map.mapObj.orientation + 1) % 4;
+  else //clicked left half, ccw
+  {
+    tile->map.mapObj.orientation = (tile->map.mapObj.orientation - 1);
+    if (tile->map.mapObj.orientation >= 4)
+      tile->map.mapObj.orientation = RIGHT; //c doesn't do modular arithmetic correctly so we need to handle negative numbers manually
+  }
 }

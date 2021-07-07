@@ -174,9 +174,7 @@ void SwapTiles(struct node *node1, struct node *node2) //swaps the Renderables' 
 {
     struct Renderable tmp = node1->map.mapObj;
     node1->map.mapObj.rect = node2->map.mapObj.rect;
-    node1->map.mapObj.orientation = node2->map.mapObj.orientation;
     node2->map.mapObj.rect = tmp.rect;
-    node2->map.mapObj.orientation = tmp.orientation;
 
     tmp = node1->map.susObject;
     node1->map.susObject.rect = node2->map.susObject.rect;
