@@ -5,7 +5,7 @@
 #define MAP_START_Y 90
 #define TILE_HEIGHT 140
 #define TILE_WIDTH 140
-#include "GameObject.h"
+#include "Renderable.h"
 #include "SDL.h"
 
 struct Map

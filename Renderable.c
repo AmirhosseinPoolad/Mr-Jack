@@ -1,4 +1,4 @@
-#include "GameObject.h"
+#include "Renderable.h"
 
 #include "SDL.h"
 #include "Map.h"

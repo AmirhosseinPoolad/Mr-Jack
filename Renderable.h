@@ -2,6 +2,8 @@
 #define GAME_OBJECT_H
 #include "SDL.h"
 
+#define OFFSET 25
+
 enum Orientation
 {
     UP,
@@ -9,6 +11,8 @@ enum Orientation
     DOWN,
     RIGHT
 };
+
+
 
 struct Renderable
 {

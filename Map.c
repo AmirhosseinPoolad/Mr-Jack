@@ -1,7 +1,7 @@
 #include "Map.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "GameObject.h"
+#include "Renderable.h"
 
 
 
