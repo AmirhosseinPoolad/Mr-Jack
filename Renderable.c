@@ -66,6 +66,13 @@ void SetupRenderableWithTexture(struct Renderable *obj, SDL_Renderer *renderer, 
 
 void GORender(struct Renderable *obj, SDL_Renderer *renderer) //renders the Renderable
 {
+    if (obj == NULL)
+        return;
     double rotation = obj->orientation * 90;
     SDL_RenderCopyEx(renderer, obj->texture, NULL, &(obj->rect), rotation, NULL, SDL_FLIP_NONE);
+}
+
+void FreeRenderable(struct Renderable *obj)
+{
+    SDL_DestroyTexture(obj->texture);
 }

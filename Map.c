@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include "Renderable.h"
 
-
-
 void MapUpdate(struct Renderable *obj)
 {
     obj->orientation++;

@@ -12,8 +12,6 @@ enum Orientation
     RIGHT
 };
 
-
-
 struct Renderable
 {
     SDL_Rect rect;                //position and size

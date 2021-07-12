@@ -2,7 +2,7 @@
 #include "Map.h"
 #include "Renderable.h"
 
-void ClickSwap(int mouseDown, SDL_Point mousePos, struct node **map)
+int ClickSwap(int mouseDown, SDL_Point mousePos, struct node **map)
 {
     static struct node *tiles[2] = {NULL, NULL};
     if (mouseDown)
@@ -21,22 +21,47 @@ void ClickSwap(int mouseDown, SDL_Point mousePos, struct node **map)
         SwapNodes(map, tiles[0], tiles[1]);
         tiles[0] = NULL;
         tiles[1] = NULL;
+        return 1;
     }
+    return 0;
 }
 
-void ClickRotate(SDL_Point mousePos, struct node **map)
+int ClickRotate(int mouseDown, SDL_Point mousePos, struct node **map, struct Renderable *confirmButton)
 {
-    struct node *tile = GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y);
-    if (tile == NULL)
-        return;
-    if (mousePos.x >= tile->map.mapObj.rect.x + (tile->map.mapObj.rect.w / 2)) //clicked right half, cw
-        tile->map.mapObj.orientation = (tile->map.mapObj.orientation + 1) % 4;
-    else //clicked left half, ccw
+    static int times = 0;
+    if (SDL_PointInRect(&mousePos,&(confirmButton->rect)))
     {
-        tile->map.mapObj.orientation = (tile->map.mapObj.orientation - 1);
-        if (tile->map.mapObj.orientation >= 4) //enums are unsigned so we need to check for overflow and not negative numbers
-            tile->map.mapObj.orientation = RIGHT;
+        times = 0;
+        return 1;
     }
+    if (mouseDown)
+    {
+        struct node *tile = GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y);
+        if (tile == NULL)
+            return 0;
+        if (mousePos.x >= tile->map.mapObj.rect.x + (tile->map.mapObj.rect.w / 2)) //clicked right half, cw
+        {
+            if (times <= 1)
+            {
+                tile->map.mapObj.orientation = (tile->map.mapObj.orientation + 1) % 4;
+                times++;
+                return 0;
+            }
+        }
+        else //clicked left half, ccw
+        {
+            if (times >= -1)
+            {
+                tile->map.mapObj.orientation = (tile->map.mapObj.orientation - 1);
+                if (tile->map.mapObj.orientation >= 4) //enums are unsigned so we need to check for overflow and not negative numbers
+                    tile->map.mapObj.orientation = RIGHT;
+                times--;
+                return 0;
+            }
+        }
+    }
+    
+    return 0;
 }
 
 void SetupDTPositions(SDL_Point DTPositions[12])
@@ -110,7 +135,7 @@ int IncrementDTIndex(int index, int amount)
 
 void RenderDT(SDL_Point DTPositions[12], struct Renderable *holmes, struct Renderable *watson, struct Renderable *toby, SDL_Renderer *renderer)
 {
-    int hPos,wPos,tPos;
+    int hPos, wPos, tPos;
     hPos = GetDTIndex(DTPositions, holmes);
     wPos = GetDTIndex(DTPositions, watson);
     tPos = GetDTIndex(DTPositions, toby);
@@ -120,7 +145,7 @@ void RenderDT(SDL_Point DTPositions[12], struct Renderable *holmes, struct Rende
         GORender(holmes, renderer);
         holmes->rect.x -= OFFSET;
 
-        GORender(toby,renderer);
+        GORender(toby, renderer);
 
         watson->rect.x -= OFFSET;
         GORender(watson, renderer);
