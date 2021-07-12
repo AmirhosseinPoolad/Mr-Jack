@@ -2,6 +2,89 @@
 #include "Map.h"
 #include "Renderable.h"
 
+int MoveDT(int mouseDown, SDL_Point mousePos, struct Renderable *confirmButton, struct Renderable *dt, SDL_Point DTPositions[12])
+{
+    static int times = 0;
+    if (mouseDown)
+    {
+        if (SDL_PointInRect(&mousePos, &(confirmButton->rect)) && times >=1)
+        {
+            times = 0;
+            return 1;
+        }
+        if (times <= 1 && SDL_PointInRect(&mousePos, &(dt->rect)))
+        {
+            IncrementDTPos(DTPositions, dt, 1);
+            times++;
+        }
+    }
+    return 0;
+}
+
+int MoveAny(int mouseDown, SDL_Point mousePos, struct Renderable *confirmButton,
+            struct Renderable *holmes, struct Renderable *watson, struct Renderable *toby,
+            SDL_Point DTPositions[12], int turn)
+{
+    static struct Renderable *selectedDetective = NULL;
+    static int times = 0;
+    if (mouseDown)
+    {
+        if (!turn) //watson's turn, has to move
+        {
+            if (SDL_PointInRect(&mousePos, &(confirmButton->rect)) && times == 1)
+            {
+                times = 0;
+                return 1;
+            }
+            if (SDL_PointInRect(&mousePos, &(holmes->rect)) && times == 0)
+            {
+                IncrementDTPos(DTPositions, holmes, 1);
+                times++;
+                return 0;
+            }
+            if (SDL_PointInRect(&mousePos, &(watson->rect)) && times == 0)
+            {
+                IncrementDTPos(DTPositions, watson, 1);
+                times++;
+                return 0;
+            }
+            if (SDL_PointInRect(&mousePos, &(toby->rect)) && times == 0)
+            {
+                IncrementDTPos(DTPositions, toby, 1);
+                times++;
+                return 0;
+            }
+        }
+        if (turn) //jack's move, doesn't have to move
+        {
+            if (SDL_PointInRect(&mousePos, &(confirmButton->rect)))
+            {
+                times = 0;
+                return 1;
+            }
+            if (SDL_PointInRect(&mousePos, &(holmes->rect)) && times == 0)
+            {
+                IncrementDTPos(DTPositions, holmes, 1);
+                times++;
+                return 0;
+            }
+            if (SDL_PointInRect(&mousePos, &(watson->rect)) && times == 0)
+            {
+                IncrementDTPos(DTPositions, watson, 1);
+                times++;
+                return 0;
+            }
+            if (SDL_PointInRect(&mousePos, &(toby->rect)) && times == 0)
+            {
+                IncrementDTPos(DTPositions, toby, 1);
+                times++;
+                return 0;
+            }
+        }
+    }
+    return 0;
+}
+
 int ClickSwap(int mouseDown, SDL_Point mousePos, struct node **map)
 {
     static struct node *tiles[2] = {NULL, NULL};
@@ -29,13 +112,13 @@ int ClickSwap(int mouseDown, SDL_Point mousePos, struct node **map)
 int ClickRotate(int mouseDown, SDL_Point mousePos, struct node **map, struct Renderable *confirmButton)
 {
     static int times = 0;
-    if (SDL_PointInRect(&mousePos,&(confirmButton->rect)))
-    {
-        times = 0;
-        return 1;
-    }
     if (mouseDown)
     {
+        if (SDL_PointInRect(&mousePos, &(confirmButton->rect)))
+        {
+            times = 0;
+            return 1;
+        }
         struct node *tile = GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y);
         if (tile == NULL)
             return 0;
@@ -60,7 +143,7 @@ int ClickRotate(int mouseDown, SDL_Point mousePos, struct node **map, struct Ren
             }
         }
     }
-    
+
     return 0;
 }
 
