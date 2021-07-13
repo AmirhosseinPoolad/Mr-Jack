@@ -46,6 +46,7 @@ enum ActionTokens
 };
 
 void SelectToken(int *state, struct Renderable **clickedToken, struct Renderable *zerothToken);
+void SeeTokens(struct Renderable *DT, SDL_Point DTPositions[12], struct node **map, SDL_Point seenTiles[9], int *size);
 
 int main(int argc, char *argv[])
 {
@@ -65,50 +66,53 @@ int main(int argc, char *argv[])
 
     struct node *map = NULL;
     SetupMap(&map, renderer);
+    GetTileFromCoordinates(&map, 0, 0)->map.mapObj.orientation = LEFT;
+    GetTileFromCoordinates(&map, 2, 0)->map.mapObj.orientation = RIGHT;
+    GetTileFromCoordinates(&map, 1, 2)->map.mapObj.orientation = DOWN;
 
     SDL_Point DTPositions[12]; //positions for detective tokens around the board
                                //starts from top left and goes clockwise
     SetupDTPositions(DTPositions);
     struct Renderable holmes, watson, toby; //pos: 11,3,7
     SetupRenderableFromPath(&holmes, renderer, "assets/detective_tokens/Holmes.jpg",
-                            DTPositions[11].x, DTPositions[11].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, UP);
+                            DTPositions[11].x, DTPositions[11].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
     SetupRenderableFromPath(&watson, renderer, "assets/detective_tokens/Watson.jpg",
-                            DTPositions[3].x, DTPositions[3].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, UP);
+                            DTPositions[3].x, DTPositions[3].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
     SetupRenderableFromPath(&toby, renderer, "assets/detective_tokens/Toby.jpg",
-                            DTPositions[7].x, DTPositions[7].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, UP);
+                            DTPositions[7].x, DTPositions[7].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
     struct Renderable actionTokens[8];
     SetupRenderableFromPath(&actionTokens[0], renderer, "assets/action_tokens/0.jpg",
-                            AT_INITPOS_X, AT_INITPOS_Y, TILE_WIDTH / 2, TILE_HEIGHT / 2, UP);
+                            AT_INITPOS_X, AT_INITPOS_Y, TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
     SetupRenderableFromPath(&actionTokens[1], renderer, "assets/action_tokens/1.jpg",
-                            AT_INITPOS_X, AT_INITPOS_Y, TILE_WIDTH / 2, TILE_HEIGHT / 2, UP);
+                            AT_INITPOS_X, AT_INITPOS_Y, TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
 
     SetupRenderableFromPath(&actionTokens[2], renderer, "assets/action_tokens/2.jpg",
-                            AT_INITPOS_X, AT_INITPOS_Y + (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, UP);
+                            AT_INITPOS_X, AT_INITPOS_Y + (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
     SetupRenderableFromPath(&actionTokens[3], renderer, "assets/action_tokens/3.jpg",
-                            AT_INITPOS_X, AT_INITPOS_Y + (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, UP);
+                            AT_INITPOS_X, AT_INITPOS_Y + (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
 
     SetupRenderableFromPath(&actionTokens[4], renderer, "assets/action_tokens/4.jpg",
-                            AT_INITPOS_X, AT_INITPOS_Y + 2 * (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, UP);
+                            AT_INITPOS_X, AT_INITPOS_Y + 2 * (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
     SetupRenderableFromPath(&actionTokens[5], renderer, "assets/action_tokens/5.jpg",
-                            AT_INITPOS_X, AT_INITPOS_Y + 2 * (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, UP);
+                            AT_INITPOS_X, AT_INITPOS_Y + 2 * (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
 
     SetupRenderableFromPath(&actionTokens[6], renderer, "assets/action_tokens/6.jpg",
-                            AT_INITPOS_X, AT_INITPOS_Y + 3 * (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, UP);
+                            AT_INITPOS_X, AT_INITPOS_Y + 3 * (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
     SetupRenderableFromPath(&actionTokens[7], renderer, "assets/action_tokens/7.jpg",
-                            AT_INITPOS_X, AT_INITPOS_Y + 3 * (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, UP);
+                            AT_INITPOS_X, AT_INITPOS_Y + 3 * (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
 
     struct Renderable confirmButton;
     SetupRenderableFromPath(&confirmButton, renderer, "assets/confirm.png",
-                            AT_INITPOS_X, AT_INITPOS_Y - (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, UP);
+                            AT_INITPOS_X, AT_INITPOS_Y - (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
     struct Renderable *activeATokens[4];
 
     struct Renderable jTurn, wTurn;
     SetupRenderableFromPath(&jTurn, renderer, "assets/jturn.png",
-                            5, 5, 80, 40, UP);
+                            5, 5, 80, 40, DOWN);
     SetupRenderableFromPath(&wTurn, renderer, "assets/wturn.png",
-                            5, 5, 80, 40, UP);
+                            5, 5, 80, 40, DOWN);
 
-    int characters[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9}; //these are the suspect cards
+    int characters[9] = {0, 1, 2, 3, 4, 5, 6, 7, 7}; //these are the suspect cards
     for (int i = 9 - 1; i > 0; i--)                  //we shuffle them
     {
         int j = rand() % (i + 1);
@@ -117,9 +121,14 @@ int main(int argc, char *argv[])
         characters[j] = tmp;
     }
     struct Renderable susCard;
+    //struct Renderable jack; //UNCOMMENT TO SEE JACK
+
     int jackIndex = characters[0]; //and the first card is jack's identity
     int susIndex = 1;              //we use this index to access the cards. value of 1 means we never see the first card again.
     int turn = 0;                  //0:watson, 1:mr jack
+    char address[50];
+    sprintf(address, "assets/char_cards/char_%d.jpg", jackIndex);
+    //SetupRenderableFromPath(&jack, renderer, address, 573, 452, 222, 343, DOWN); //UNCOMMENT TO SEE JACK
     int round = 1;
     int isQuit = 0;
     int tokensSelected = 0;
@@ -150,45 +159,55 @@ int main(int argc, char *argv[])
         switch (playState)
         {
         case HOLMES_MOVE:
-            //int a = 0;
+        {
             if (MoveDT(mouseDown, mousePos, &confirmButton, &holmes, DTPositions) == 1)
             {
                 playState = SELECT_TOKEN;
             }
             break;
+        }
         case TOBY_MOVE:
-            //int a = 0;
+        {
             if (MoveDT(mouseDown, mousePos, &confirmButton, &toby, DTPositions) == 1)
             {
                 playState = SELECT_TOKEN;
             }
             break;
+        }
         case WATSON_MOVE:
-            //int a = 0;
+        {
             if (MoveDT(mouseDown, mousePos, &confirmButton, &watson, DTPositions) == 1)
             {
                 playState = SELECT_TOKEN;
             }
             break;
+        }
         case ANY_MOVE:
+        {
             if (MoveAny(mouseDown, mousePos, &confirmButton, &holmes, &watson, &toby, DTPositions, turn) == 1)
             {
                 playState = SELECT_TOKEN;
             }
             break;
+        }
         case TILE_SWAP:
+        {
             if (ClickSwap(mouseDown, mousePos, &map) == 1)
             {
                 playState = SELECT_TOKEN;
             }
             break;
+        }
         case TILE_ROTATE:
+        {
             if (ClickRotate(mouseDown, mousePos, &map, &confirmButton) == 1)
             {
                 playState = SELECT_TOKEN;
             }
             break;
+        }
         case DEAL_TOKEN:
+        {
             for (int i = 0; i < 4; i++)
             {
                 int random = rand() % 2;
@@ -196,7 +215,9 @@ int main(int argc, char *argv[])
             }
             playState = SELECT_TOKEN;
             break;
+        }
         case SELECT_TOKEN:
+        {
             if (tokensSelected == 4)
             {
                 playState = REMOVE_TOKENS;
@@ -282,32 +303,77 @@ int main(int argc, char *argv[])
                 }
             }
             break;
+        }
         case AT_SUSPECT_REVEAL:
-            timer += deltaTime;
-            int index = characters[susIndex];
-            struct node *tile = GetTileFromSusIndex(&map, index);
-            if (isFirstTime)
+        {
+            if (turn) //jack picked this token, just remove a card from character cards
             {
-                char address[50];
-                sprintf(address, "assets/char_cards/char_%d.jpg", index);
-                SetupRenderableFromPath(&susCard, renderer, address, 573, 452, 222, 343, UP);
-                isFirstTime = 0;
-            }
-            if (timer >= 1500) // >1.5 seconds
-            {
-                tile->map.isShowingSuspect = 0;
                 susIndex++;
-                timer = 0;
-                isFirstTime = 1;
-                FreeRenderable(&susCard);
                 playState = SELECT_TOKEN;
+            }
+            if (!turn) //watson picked this token, reveal the first character chard
+            {
+                timer += deltaTime;
+                int index = characters[susIndex];
+                struct node *tile = GetTileFromSusIndex(&map, index);
+                //if(tile->map.isShowingSuspect != 0){
+                if (isFirstTime)
+                {
+                    char address[50];
+                    sprintf(address, "assets/char_cards/char_%d.jpg", index);
+                    SetupRenderableFromPath(&susCard, renderer, address, 573, 452, 222, 343, DOWN);
+                    isFirstTime = 0;
+                }
+                if (timer >= 1500) // >1.5 seconds
+                {
+                    tile->map.isShowingSuspect = 0;
+                    susIndex++;
+                    timer = 0;
+                    isFirstTime = 1;
+                    FreeRenderable(&susCard);
+                    playState = SELECT_TOKEN;
+                }
             }
 
             break;
-        case REMOVE_TOKENS: //TODO
+        }
+        case REMOVE_TOKENS:
+        { //TODO
             playState = DEAL_TOKEN;
+            SDL_Point seenTiles[9];
+            int size = 0;
+            int isJackSeen = 0;
+            SeeTokens(&holmes, DTPositions, &map, seenTiles, &size);
+            SeeTokens(&watson, DTPositions, &map, seenTiles, &size);
+            SeeTokens(&toby, DTPositions, &map, seenTiles, &size);
+            for (int i = 0; i < size; i++)
+            {
+                if ((GetTileFromCoordinates(&map, seenTiles[i].x, seenTiles[i].y)->map.susIndex) == jackIndex)
+                    isJackSeen = 1;
+            }
+            if (isJackSeen == 0)
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    (GetTileFromCoordinates(&map, seenTiles[i].x, seenTiles[i].y)->map.isShowingSuspect) = 0;
+                }
+            }
+            else
+            {
+                struct node *current;
+                for (current = map; current != NULL; current = current->next)
+                {
+                    current->map.isShowingSuspect = 0;
+                }
+                for (int i = 0; i < size; i++)
+                {
+                    (GetTileFromCoordinates(&map, seenTiles[i].x, seenTiles[i].y)->map.isShowingSuspect) = 1;
+                }
+            }
             round++;
             turn = !turn;
+            break;
+        }
         default:
             if (ClickSwap(mouseDown, mousePos, &map) == 1)
             {
@@ -332,6 +398,7 @@ int main(int argc, char *argv[])
             GORender(&jTurn, renderer);
         if (playState == AT_SUSPECT_REVEAL && !isFirstTime)
             GORender(&susCard, renderer);
+        //GORender(&jack, renderer); //UNCOMMENT TO SEE JACK
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
@@ -375,4 +442,33 @@ void SelectToken(int *state, struct Renderable **clickedToken, struct Renderable
         break;
     }
     *clickedToken = NULL;
+}
+
+void SeeTokens(struct Renderable *DT, SDL_Point DTPositions[12], struct node **map, SDL_Point seenTiles[9], int *size)
+{
+    int index = GetDTIndex(DTPositions, DT);
+    int x, y;
+    x = MapXCoordsFromDTIndex(index);
+    y = MapXCoordsFromDTIndex(11 - index);
+    struct node *startingTile = GetTileFromCoordinates(map, x, y);
+    if (index <= 2)
+    {
+        if (startingTile->map.mapObj.orientation != UP)
+            AddToVisiblesList(DOWN, startingTile, map, seenTiles, size);
+    }
+    else if (index <= 5)
+    {
+        if (startingTile->map.mapObj.orientation != RIGHT)
+            AddToVisiblesList(LEFT, startingTile, map, seenTiles, size);
+    }
+    else if (index <= 8)
+    {
+        if (startingTile->map.mapObj.orientation != DOWN)
+            AddToVisiblesList(UP, startingTile, map, seenTiles, size);
+    }
+    else if (index <= 11)
+    {
+        if (startingTile->map.mapObj.orientation != LEFT)
+            AddToVisiblesList(RIGHT, startingTile, map, seenTiles, size);
+    }
 }

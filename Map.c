@@ -58,13 +58,13 @@ void SetupMap(struct node **head, SDL_Renderer *rend)
             int index;
             while (1)
             {
-                index = rand() % 9;
+                index = (rand() % 9);
                 if (!textures[index].isUsed)
                 {
                     SetupRenderableWithTexture(&susObj, rend, textures[index].tex,
                                                MAP_START_X + (j * TILE_WIDTH) + (TILE_WIDTH / 3),
                                                MAP_START_Y + (i * TILE_HEIGHT) + (TILE_HEIGHT / 3),
-                                               TILE_WIDTH / 3, TILE_HEIGHT / 3, UP);
+                                               TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
                     textures[index].isUsed = 1;
                     break;
                 }

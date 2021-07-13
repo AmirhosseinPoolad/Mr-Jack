@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Map.h"
 #include "Renderable.h"
+#include "math.h"
 
 int MoveDT(int mouseDown, SDL_Point mousePos, struct Renderable *confirmButton, struct Renderable *dt, SDL_Point DTPositions[12])
 {
@@ -119,7 +120,7 @@ int ClickRotate(int mouseDown, SDL_Point mousePos, struct node **map, struct Ren
         {
             tile = GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y);
         }
-        if (SDL_PointInRect(&mousePos, &(confirmButton->rect)) && times !=0)
+        if (SDL_PointInRect(&mousePos, &(confirmButton->rect)) && times != 0)
         {
             times = 0;
             tile = NULL;
@@ -267,4 +268,49 @@ void RenderDT(SDL_Point DTPositions[12], struct Renderable *holmes, struct Rende
     }
 
     GORender(toby, renderer);
+}
+
+int MapXCoordsFromDTIndex(int index) // y of index i is equal to x of index 11 - i
+{
+    if (index == 0 || index >= 8)
+        return 0;
+    if (index >= 2 && index <= 6)
+        return 2;
+    if (index == 1 || index == 7)
+        return 1;
+}
+
+void AddToVisiblesList(enum Orientation direction, struct node *tile, struct node **head, SDL_Point seenTiles[9], int *size)
+{
+    //tile->map.isShowingSuspect = 0;
+    if (abs(direction - tile->map.mapObj.orientation) == 2)
+    {
+        return;
+    }
+    tile->map.isShowingSuspect = 0;
+    seenTiles[*size] = tile->map.coordinates;
+    *size += 1;
+    if (tile->map.mapObj.orientation != direction)
+    {
+        if (direction == DOWN)
+        {
+            if (tile->map.coordinates.y != 2)
+                AddToVisiblesList(direction, GetTileFromCoordinates(head, tile->map.coordinates.x, tile->map.coordinates.y + 1), head, seenTiles, size);
+        }
+        if (direction == LEFT)
+        {
+            if (tile->map.coordinates.x != 0)
+                AddToVisiblesList(direction, GetTileFromCoordinates(head, tile->map.coordinates.x - 1, tile->map.coordinates.y), head, seenTiles, size);
+        }
+        if (direction == UP)
+        {
+            if (tile->map.coordinates.y != 0)
+                AddToVisiblesList(direction, GetTileFromCoordinates(head, tile->map.coordinates.x, tile->map.coordinates.y - 1), head, seenTiles, size);
+        }
+        if (direction == RIGHT)
+        {
+            if (tile->map.coordinates.x != 2)
+                AddToVisiblesList(direction, GetTileFromCoordinates(head, tile->map.coordinates.x + 1, tile->map.coordinates.y), head, seenTiles, size);
+        }
+    }
 }

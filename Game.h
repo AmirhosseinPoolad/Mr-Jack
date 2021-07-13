@@ -15,5 +15,7 @@ void IncrementDTPos(SDL_Point DTPositions[12], struct Renderable *dt, int amount
 int GetDTIndex(SDL_Point DTPositions[12], struct Renderable *dt);
 int IncrementDTIndex(int index, int amount);
 void RenderDT(SDL_Point DTPositions[12], struct Renderable *holmes, struct Renderable *watson, struct Renderable *toby, SDL_Renderer *renderer);
+int MapXCoordsFromDTIndex(int index);
+void AddToVisiblesList(enum Orientation direction, struct node *tile, struct node **head,SDL_Point seenTiles[9], int *size);
 
 #endif
