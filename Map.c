@@ -124,6 +124,17 @@ struct node *GetTileFromScreenCoordinates(struct node **head, int screenX, int s
     return NULL;
 }
 
+struct node *GetTileFromSusIndex(struct node **head, int susIndex)
+{
+    struct node *current;
+    for (current = *head; current != NULL; current = current->next)
+    {
+        if (current->map.susIndex == susIndex)
+            return current;
+    }
+    return NULL;
+}
+
 void SwapNodes(struct node **head, struct node *node1, struct node *node2)
 {
     if (*head == NULL)

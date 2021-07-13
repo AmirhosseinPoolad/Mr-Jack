@@ -75,4 +75,5 @@ void GORender(struct Renderable *obj, SDL_Renderer *renderer) //renders the Rend
 void FreeRenderable(struct Renderable *obj)
 {
     SDL_DestroyTexture(obj->texture);
+    obj->texture = NULL;
 }

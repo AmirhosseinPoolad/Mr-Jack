@@ -38,6 +38,7 @@ void SetupMap(struct node **head, SDL_Renderer *rend);
 void RenderMap(struct node **head, SDL_Renderer *rend);
 struct node *GetTileFromCoordinates(struct node **head, int x, int y);
 struct node *GetTileFromScreenCoordinates(struct node **head, int screenX, int screenY);
+struct node *GetTileFromSusIndex(struct node **head, int susIndex);
 void SwapNodes(struct node **head, struct node *node1, struct node *node2);
 void SwapTiles(struct node *node1, struct node *node2);
 

@@ -28,5 +28,6 @@ void SetupRenderableWithTexture(struct Renderable *obj, SDL_Renderer *renderer, 
                                 int x, int y, int w, int h, enum Orientation orientation);
 
 void GORender(struct Renderable *obj, SDL_Renderer *renderer);
+void FreeRenderable(struct Renderable *obj);
 
 #endif

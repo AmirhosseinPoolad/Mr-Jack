@@ -29,7 +29,8 @@ enum PlayState
     HOLMES_MOVE,
     WATSON_MOVE,
     TOBY_MOVE,
-    ANY_MOVE
+    ANY_MOVE,
+    AT_SUSPECT_REVEAL
 };
 
 enum ActionTokens
@@ -107,14 +108,30 @@ int main(int argc, char *argv[])
     SetupRenderableFromPath(&wTurn, renderer, "assets/wturn.png",
                             5, 5, 80, 40, UP);
 
-    int turn = 0; //0:watson, 1:mr jack
+    int characters[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9}; //these are the suspect cards
+    for (int i = 9 - 1; i > 0; i--)                  //we shuffle them
+    {
+        int j = rand() % (i + 1);
+        int tmp = characters[i];
+        characters[i] = characters[j];
+        characters[j] = tmp;
+    }
+    struct Renderable susCard;
+    int jackIndex = characters[0]; //and the first card is jack's identity
+    int susIndex = 1;              //we use this index to access the cards. value of 1 means we never see the first card again.
+    int turn = 0;                  //0:watson, 1:mr jack
     int round = 1;
     int isQuit = 0;
     int tokensSelected = 0;
     int gameState;
     int playState = DEAL_TOKEN;
+    int timer = 0, lastFrame = 0, deltaTime, isFirstTime = 1;
     while (!isQuit)
     {
+        //0. Timing calculations
+        int ticks = SDL_GetTicks();
+        deltaTime = ticks - lastFrame;
+        lastFrame = ticks;
         //1. Handle Input
         SDL_Event e;
         SDL_Point mousePos;
@@ -265,7 +282,29 @@ int main(int argc, char *argv[])
                 }
             }
             break;
-        case REMOVE_TOKENS:
+        case AT_SUSPECT_REVEAL:
+            timer += deltaTime;
+            int index = characters[susIndex];
+            struct node *tile = GetTileFromSusIndex(&map, index);
+            if (isFirstTime)
+            {
+                char address[50];
+                sprintf(address, "assets/char_cards/char_%d.jpg", index);
+                SetupRenderableFromPath(&susCard, renderer, address, 573, 452, 222, 343, UP);
+                isFirstTime = 0;
+            }
+            if (timer >= 1500) // >1.5 seconds
+            {
+                tile->map.isShowingSuspect = 0;
+                susIndex++;
+                timer = 0;
+                isFirstTime = 1;
+                FreeRenderable(&susCard);
+                playState = SELECT_TOKEN;
+            }
+
+            break;
+        case REMOVE_TOKENS: //TODO
             playState = DEAL_TOKEN;
             round++;
             turn = !turn;
@@ -291,6 +330,8 @@ int main(int argc, char *argv[])
             GORender(&wTurn, renderer);
         else
             GORender(&jTurn, renderer);
+        if (playState == AT_SUSPECT_REVEAL && !isFirstTime)
+            GORender(&susCard, renderer);
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
@@ -307,6 +348,7 @@ void SelectToken(int *state, struct Renderable **clickedToken, struct Renderable
     switch (index)
     {
     case AT_SUSPECT:
+        *state = AT_SUSPECT_REVEAL;
         break;
     case AT_HOLMES:
         *state = HOLMES_MOVE;
