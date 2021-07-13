@@ -7,7 +7,7 @@ int MoveDT(int mouseDown, SDL_Point mousePos, struct Renderable *confirmButton, 
     static int times = 0;
     if (mouseDown)
     {
-        if (SDL_PointInRect(&mousePos, &(confirmButton->rect)) && times >=1)
+        if (SDL_PointInRect(&mousePos, &(confirmButton->rect)) && times >= 1)
         {
             times = 0;
             return 1;
@@ -112,17 +112,20 @@ int ClickSwap(int mouseDown, SDL_Point mousePos, struct node **map)
 int ClickRotate(int mouseDown, SDL_Point mousePos, struct node **map, struct Renderable *confirmButton)
 {
     static int times = 0;
+    static struct node *tile = NULL;
     if (mouseDown)
     {
-        if (SDL_PointInRect(&mousePos, &(confirmButton->rect)))
+        if (tile == NULL)
+        {
+            tile = GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y);
+        }
+        if (SDL_PointInRect(&mousePos, &(confirmButton->rect)) && times !=0)
         {
             times = 0;
+            tile = NULL;
             return 1;
         }
-        struct node *tile = GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y);
-        if (tile == NULL)
-            return 0;
-        if (mousePos.x >= tile->map.mapObj.rect.x + (tile->map.mapObj.rect.w / 2)) //clicked right half, cw
+        if ((tile != NULL) && SDL_PointInRect(&mousePos, &(tile->map.mapObj.rect)) && mousePos.x >= tile->map.mapObj.rect.x + (tile->map.mapObj.rect.w / 2)) //clicked right half, cw
         {
             if (times <= 1)
             {
@@ -131,7 +134,7 @@ int ClickRotate(int mouseDown, SDL_Point mousePos, struct node **map, struct Ren
                 return 0;
             }
         }
-        else //clicked left half, ccw
+        else if ((tile != NULL) && SDL_PointInRect(&mousePos, &(tile->map.mapObj.rect))) //clicked left half, ccw
         {
             if (times >= -1)
             {
