@@ -12,11 +12,17 @@ struct Map
 {
     struct Renderable mapObj;
     struct Renderable susObject;
-    void (*Update)(struct Renderable *self);
-    void (*OnMouseDown)(struct Renderable *self);
     SDL_Point coordinates;
     int susIndex;
     int isShowingSuspect;
+};
+
+struct MapData //for loading and saving
+{
+    int isRandom;
+    int susIndex[9];
+    int isShowingSuspect[9];
+    enum Orientation orientation[9];
 };
 
 struct node
@@ -34,7 +40,8 @@ struct SuspectTexture
 struct node *newNode(struct Map map);
 int pushEnd(struct Map map, struct node **head);
 
-void SetupMap(struct node **head, SDL_Renderer *rend);
+void SetupRandomMap(struct node **head, SDL_Renderer *rend);
+void SetupMap(struct node **head, SDL_Renderer *rend, const struct MapData *data);
 void RenderMap(struct node **head, SDL_Renderer *rend);
 struct node *GetTileFromCoordinates(struct node **head, int x, int y);
 struct node *GetTileFromScreenCoordinates(struct node **head, int screenX, int screenY);

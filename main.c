@@ -10,7 +10,7 @@
 #define SCREEN_HEIGHT 800
 #define AT_INITPOS_X 25
 #define AT_INITPOS_Y 500
-enum GameState //TODO: Implement these
+enum AppState //TODO: Implement these
 {
     MAIN_MENU,
     LOAD_MENU,
@@ -68,21 +68,13 @@ int main(int argc, char *argv[])
     SDL_SetRenderDrawColor(renderer, 255, 250, 250, SDL_ALPHA_OPAQUE);
 
     struct node *map = NULL;
-    SetupMap(&map, renderer);
-    GetTileFromCoordinates(&map, 0, 0)->map.mapObj.orientation = LEFT;
-    GetTileFromCoordinates(&map, 2, 0)->map.mapObj.orientation = RIGHT;
-    GetTileFromCoordinates(&map, 1, 2)->map.mapObj.orientation = DOWN;
+    struct MapData mapData;
+    mapData.isRandom = 1;
 
     SDL_Point DTPositions[12]; //positions for detective tokens around the board
                                //starts from top left and goes clockwise
     SetupDTPositions(DTPositions);
-    struct Renderable holmes, watson, toby; //pos: 11,3,7
-    SetupRenderableFromPath(&holmes, renderer, "assets/detective_tokens/Holmes.jpg",
-                            DTPositions[11].x, DTPositions[11].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
-    SetupRenderableFromPath(&watson, renderer, "assets/detective_tokens/Watson.jpg",
-                            DTPositions[3].x, DTPositions[3].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
-    SetupRenderableFromPath(&toby, renderer, "assets/detective_tokens/Toby.jpg",
-                            DTPositions[7].x, DTPositions[7].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
+    struct Renderable holmes, watson, toby;
     struct Renderable actionTokens[8];
     SetupRenderableFromPath(&actionTokens[0], renderer, "assets/action_tokens/0.jpg",
                             AT_INITPOS_X, AT_INITPOS_Y, TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
@@ -107,7 +99,7 @@ int main(int argc, char *argv[])
     struct Renderable confirmButton;
     SetupRenderableFromPath(&confirmButton, renderer, "assets/confirm.png",
                             AT_INITPOS_X, AT_INITPOS_Y - (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
-    struct Renderable *activeATokens[4];
+    struct Renderable *activeATokens[4] = {NULL, NULL, NULL, NULL};
 
     struct Renderable jTurn, wTurn, jWin, hWin;
     SetupRenderableFromPath(&jTurn, renderer, "assets/jturn.png",
@@ -119,7 +111,7 @@ int main(int argc, char *argv[])
     SetupRenderableFromPath(&hWin, renderer, "assets/hwins.png",
                             200, 200, 400, 400, DOWN);
 
-    int characters[9] = {0, 1, 2, 3, 4, 5, 6, 7, 7}; //these are the suspect cards
+    int characters[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8}; //these are the suspect cards
     for (int i = 9 - 1; i > 0; i--)                  //we shuffle them
     {
         int j = rand() % (i + 1);
@@ -141,6 +133,26 @@ int main(int argc, char *argv[])
     int tokensSelected = 0;
     int gameState;
     int playState = REVEAL_JACK;
+    struct GameState initState;// = {mapData, 11, 3, 7, {-1, -1, -1, -1}, NULL, characters[0], 1, 0, 1, 0, REVEAL_JACK};
+    initState.mData = mapData;
+    initState.holmesPos = 11;
+    initState.watsonPos = 3;
+    initState.tobyPos = 7;
+    for(int i = 0;i<4;i++)
+    {
+        initState.ActiveTokensIndex[i] = -1;
+    }
+    for(int i = 0;i<9;i++)
+    {
+        initState.characterCards[i] = characters[i];
+    }
+    initState.jackIndex = characters[0];
+    initState.susIndex = 1;
+    initState.turn = 0;
+    initState.round = 1;
+    initState.tokensSelected = 0;
+    initState.playState = REVEAL_JACK;
+    SetupGame(initState, &map, &holmes, &watson, &toby, activeATokens, characters, &jackIndex, &susIndex, &turn, &round, &tokensSelected, &playState, renderer, DTPositions, actionTokens);
     int timer = 0, lastFrame = 0, deltaTime, isFirstTime = 1;
     while (!isQuit)
     {
@@ -169,7 +181,10 @@ int main(int argc, char *argv[])
         {
             timer += deltaTime;
             if (timer >= 2000) //stay in this state for a while second
+            {
                 playState = DEAL_TOKEN;
+                timer = 0;
+            }
         }
         case HOLMES_MOVE:
         {

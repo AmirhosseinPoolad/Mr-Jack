@@ -3,12 +3,6 @@
 #include <stdio.h>
 #include "Renderable.h"
 
-void MapUpdate(struct Renderable *obj)
-{
-    obj->orientation++;
-    obj->orientation = (obj->orientation) % 4;
-}
-
 struct node *newNode(struct Map map)
 {
     struct node *nn = malloc(sizeof(struct node));
@@ -30,7 +24,7 @@ int pushEnd(struct Map map, struct node **head)
     current->next = newNode(map);
 }
 
-void SetupMap(struct node **head, SDL_Renderer *rend)
+void SetupRandomMap(struct node **head, SDL_Renderer *rend)
 {
     if (*head != NULL) //the map is already setup
         return;        //we don't need to do anything else
@@ -74,7 +68,59 @@ void SetupMap(struct node **head, SDL_Renderer *rend)
             map.susObject = susObj;
             map.isShowingSuspect = 1;
             map.susIndex = index;
-            map.Update = MapUpdate;
+            SDL_Point coords = {j, i};
+            map.coordinates = coords;
+            pushEnd(map, head);
+        }
+    }
+    GetTileFromCoordinates(head, 0, 0)->map.mapObj.orientation = LEFT;
+    GetTileFromCoordinates(head, 2, 0)->map.mapObj.orientation = RIGHT;
+    GetTileFromCoordinates(head, 1, 2)->map.mapObj.orientation = DOWN;
+}
+
+void SetupMap(struct node **head, SDL_Renderer *rend, const struct MapData *data)
+{
+    if (data->isRandom)
+    {
+        SetupRandomMap(head, rend);
+        return;
+    }
+
+    if (*head != NULL) //the map is already setup
+        return;        //we don't need to do anything else
+
+    struct SuspectTexture textures[9];
+    struct SDL_Texture *mapTex = SetupTexture("assets/wall.jpg", rend);
+    for (int i = 0; i < 9; i++)
+    {
+        char address[31];
+        sprintf(address, "assets/suspects/suspects_%d.png", i);
+        textures[i].tex = SetupTexture(address, rend);
+        textures[i].isUsed = 0;
+    }
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            struct Renderable mapObj;
+            SetupRenderableWithTexture(&mapObj, rend, mapTex,
+                                       MAP_START_X + (j * TILE_WIDTH), MAP_START_Y + (i * TILE_HEIGHT),
+                                       TILE_WIDTH, TILE_HEIGHT, data->orientation[(3 * i) + j]);
+
+            struct Renderable susObj;
+            int index = data->susIndex[(3 * i) + j];
+
+            SetupRenderableWithTexture(&susObj, rend, textures[index].tex,
+                                       MAP_START_X + (j * TILE_WIDTH) + (TILE_WIDTH / 3),
+                                       MAP_START_Y + (i * TILE_HEIGHT) + (TILE_HEIGHT / 3),
+                                       TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
+            textures[index].isUsed = 1;
+
+            struct Map map;
+            map.mapObj = mapObj;
+            map.susObject = susObj;
+            map.isShowingSuspect = data->isShowingSuspect[(3 * i) + j];
+            map.susIndex = index;
             SDL_Point coords = {j, i};
             map.coordinates = coords;
             pushEnd(map, head);

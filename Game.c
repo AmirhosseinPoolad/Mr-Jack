@@ -317,3 +317,42 @@ void AddToVisiblesList(enum Orientation direction, struct node *tile, struct nod
         }
     }
 }
+
+void SetupGame(struct GameState gameState, struct node **map,
+               struct Renderable *holmes, struct Renderable *watson, struct Renderable *toby,
+               struct Renderable *activeATokens[4], int characters[9], int *jackIndex,
+               int *susIndex, int *turn, int *round, int *tokensSelected, int *playState,
+               SDL_Renderer *renderer, SDL_Point DTPositions[12], struct Renderable actionTokens[8])
+{
+    SetupMap(map, renderer, &(gameState.mData));
+    SetupRenderableFromPath(holmes, renderer, "assets/detective_tokens/Holmes.jpg",
+                            DTPositions[gameState.holmesPos].x, DTPositions[gameState.holmesPos].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
+    SetupRenderableFromPath(watson, renderer, "assets/detective_tokens/Watson.jpg",
+                            DTPositions[gameState.watsonPos].x, DTPositions[gameState.watsonPos].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
+    SetupRenderableFromPath(toby, renderer, "assets/detective_tokens/Toby.jpg",
+                            DTPositions[gameState.tobyPos].x, DTPositions[gameState.tobyPos].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
+    /*holmes->rect.x = DTPositions[gameState.holmesPos].x;
+    holmes->rect.y = DTPositions[gameState.holmesPos].y;
+    watson->rect.x = DTPositions[gameState.watsonPos].x;
+    watson->rect.y = DTPositions[gameState.watsonPos].y;
+    toby->rect.x = DTPositions[gameState.tobyPos].x;
+    toby->rect.y = DTPositions[gameState.tobyPos].y;*/
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (gameState.ActiveTokensIndex[i] != -1)
+            activeATokens[i] = &(actionTokens[gameState.ActiveTokensIndex[i]]);
+    }
+
+    for (int i = 0; i < 9; i++)
+    {
+        characters[i] = gameState.characterCards[i];
+    }
+
+    *jackIndex = gameState.jackIndex;
+    *susIndex = gameState.susIndex;
+    *turn = gameState.turn;
+    *round = gameState.round;
+    *tokensSelected = gameState.tokensSelected;
+    *playState = gameState.playState;
+}
