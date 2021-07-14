@@ -21,6 +21,7 @@ enum GameState //TODO: Implement these
 
 enum PlayState
 {
+    REVEAL_JACK,
     DEAL_TOKEN,    //deal sction tokens
     SELECT_TOKEN,  //select action tokens
     REMOVE_TOKENS, //remove sus tokens TODO:IMPLEMENT THIS
@@ -139,7 +140,7 @@ int main(int argc, char *argv[])
     int isQuit = 0;
     int tokensSelected = 0;
     int gameState;
-    int playState = DEAL_TOKEN;
+    int playState = REVEAL_JACK;
     int timer = 0, lastFrame = 0, deltaTime, isFirstTime = 1;
     while (!isQuit)
     {
@@ -164,6 +165,12 @@ int main(int argc, char *argv[])
         //2. Game Logic
         switch (playState)
         {
+        case REVEAL_JACK:
+        {
+            timer += deltaTime;
+            if (timer >= 2000) //stay in this state for a while second
+                playState = DEAL_TOKEN;
+        }
         case HOLMES_MOVE:
         {
             if (MoveDT(mouseDown, mousePos, &confirmButton, &holmes, DTPositions) == 1)
@@ -428,7 +435,8 @@ int main(int argc, char *argv[])
             GORender(&hWin, renderer);
         if (playState == JACK_WIN)
             GORender(&jWin, renderer);
-        GORender(&jack, renderer); //UNCOMMENT TO SEE JACK
+        if (playState == REVEAL_JACK)
+            GORender(&jack, renderer); //UNCOMMENT TO SEE JACK
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
