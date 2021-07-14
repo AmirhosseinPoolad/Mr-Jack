@@ -30,7 +30,9 @@ enum PlayState
     WATSON_MOVE,
     TOBY_MOVE,
     ANY_MOVE,
-    AT_SUSPECT_REVEAL
+    AT_SUSPECT_REVEAL,
+    HOLMES_WIN,
+    JACK_WIN
 };
 
 enum ActionTokens
@@ -106,11 +108,15 @@ int main(int argc, char *argv[])
                             AT_INITPOS_X, AT_INITPOS_Y - (TILE_HEIGHT / 2), TILE_WIDTH / 2, TILE_HEIGHT / 2, DOWN);
     struct Renderable *activeATokens[4];
 
-    struct Renderable jTurn, wTurn;
+    struct Renderable jTurn, wTurn, jWin, hWin;
     SetupRenderableFromPath(&jTurn, renderer, "assets/jturn.png",
                             5, 5, 80, 40, DOWN);
     SetupRenderableFromPath(&wTurn, renderer, "assets/wturn.png",
                             5, 5, 80, 40, DOWN);
+    SetupRenderableFromPath(&jWin, renderer, "assets/jwins.png",
+                            200, 200, 400, 400, DOWN);
+    SetupRenderableFromPath(&hWin, renderer, "assets/hwins.png",
+                            200, 200, 400, 400, DOWN);
 
     int characters[9] = {0, 1, 2, 3, 4, 5, 6, 7, 7}; //these are the suspect cards
     for (int i = 9 - 1; i > 0; i--)                  //we shuffle them
@@ -121,14 +127,14 @@ int main(int argc, char *argv[])
         characters[j] = tmp;
     }
     struct Renderable susCard;
-    //struct Renderable jack; //UNCOMMENT TO SEE JACK
+    struct Renderable jack; //UNCOMMENT TO SEE JACK
 
     int jackIndex = characters[0]; //and the first card is jack's identity
     int susIndex = 1;              //we use this index to access the cards. value of 1 means we never see the first card again.
     int turn = 0;                  //0:watson, 1:mr jack
     char address[50];
     sprintf(address, "assets/char_cards/char_%d.jpg", jackIndex);
-    //SetupRenderableFromPath(&jack, renderer, address, 573, 452, 222, 343, DOWN); //UNCOMMENT TO SEE JACK
+    SetupRenderableFromPath(&jack, renderer, address, 573, 452, 222, 343, DOWN); //UNCOMMENT TO SEE JACK
     int round = 1;
     int isQuit = 0;
     int tokensSelected = 0;
@@ -338,7 +344,8 @@ int main(int argc, char *argv[])
             break;
         }
         case REMOVE_TOKENS:
-        { //TODO
+        {
+            //1. find and remove tokens from map
             playState = DEAL_TOKEN;
             SDL_Point seenTiles[9];
             int size = 0;
@@ -370,10 +377,29 @@ int main(int argc, char *argv[])
                     (GetTileFromCoordinates(&map, seenTiles[i].x, seenTiles[i].y)->map.isShowingSuspect) = 1;
                 }
             }
+            // 2. See if anyone won
+            int visibleTokens = 0;
+            struct node *current;
+            for (current = map; current != NULL; current = current->next)
+            {
+                if (current->map.isShowingSuspect == 1)
+                    visibleTokens++;
+            }
+            if (visibleTokens <= 1)
+            {
+                playState = HOLMES_WIN;
+            }
+            if (round == 8 && visibleTokens > 1) //final round just finished
+            {
+                playState = JACK_WIN;
+            }
             round++;
             turn = !turn;
             break;
         }
+        case JACK_WIN:
+        case HOLMES_WIN:
+            break;
         default:
             if (ClickSwap(mouseDown, mousePos, &map) == 1)
             {
@@ -398,7 +424,11 @@ int main(int argc, char *argv[])
             GORender(&jTurn, renderer);
         if (playState == AT_SUSPECT_REVEAL && !isFirstTime)
             GORender(&susCard, renderer);
-        //GORender(&jack, renderer); //UNCOMMENT TO SEE JACK
+        if (playState == HOLMES_WIN)
+            GORender(&hWin, renderer);
+        if (playState == JACK_WIN)
+            GORender(&jWin, renderer);
+        GORender(&jack, renderer); //UNCOMMENT TO SEE JACK
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }

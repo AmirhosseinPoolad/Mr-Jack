@@ -287,9 +287,12 @@ void AddToVisiblesList(enum Orientation direction, struct node *tile, struct nod
     {
         return;
     }
-    tile->map.isShowingSuspect = 0;
-    seenTiles[*size] = tile->map.coordinates;
-    *size += 1;
+    if (tile->map.isShowingSuspect != 0)
+    {
+        tile->map.isShowingSuspect = 0;
+        seenTiles[*size] = tile->map.coordinates;
+        *size += 1;
+    }
     if (tile->map.mapObj.orientation != direction)
     {
         if (direction == DOWN)
