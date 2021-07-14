@@ -75,7 +75,6 @@ void SetupMap(struct node **head, SDL_Renderer *rend)
             map.isShowingSuspect = 1;
             map.susIndex = index;
             map.Update = MapUpdate;
-            map.OnMouseDown = NULL;
             SDL_Point coords = {j, i};
             map.coordinates = coords;
             pushEnd(map, head);
