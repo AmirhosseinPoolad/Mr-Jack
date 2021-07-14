@@ -919,6 +919,11 @@ void RunGame(char *address)
         }
         case JACK_WIN:
         case HOLMES_WIN:
+            timer += deltaTime;
+            if (timer >= 1500) // >1.5 seconds
+            {
+                isQuit = 1;
+            }
             break;
         default:
             if (ClickSwap(mouseDown, mousePos, &map) == 1)
