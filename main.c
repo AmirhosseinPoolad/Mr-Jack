@@ -119,30 +119,22 @@ int main(int argc, char *argv[])
         characters[i] = characters[j];
         characters[j] = tmp;
     }
-    struct Renderable susCard;
-    struct Renderable jack; //UNCOMMENT TO SEE JACK
+    struct Renderable susCard, jack;
 
-    int jackIndex = characters[0]; //and the first card is jack's identity
-    int susIndex = 1;              //we use this index to access the cards. value of 1 means we never see the first card again.
-    int turn = 0;                  //0:watson, 1:mr jack
-    char address[50];
-    sprintf(address, "assets/char_cards/char_%d.jpg", jackIndex);
-    SetupRenderableFromPath(&jack, renderer, address, 573, 452, 222, 343, DOWN); //UNCOMMENT TO SEE JACK
-    int round = 1;
-    int isQuit = 0;
-    int tokensSelected = 0;
-    int gameState;
-    int playState = REVEAL_JACK;
-    struct GameState initState;// = {mapData, 11, 3, 7, {-1, -1, -1, -1}, NULL, characters[0], 1, 0, 1, 0, REVEAL_JACK};
+    int jackIndex; //and the first card is jack's identity
+    int susIndex;  //we use this index to access the cards. value of 1 means we never see the first card again.
+    int turn;      //0:watson, 1:mr jack
+    int round, isQuit = 0, tokensSelected, gameState, playState;
+    struct GameState initState;
     initState.mData = mapData;
     initState.holmesPos = 11;
     initState.watsonPos = 3;
     initState.tobyPos = 7;
-    for(int i = 0;i<4;i++)
+    for (int i = 0; i < 4; i++)
     {
         initState.ActiveTokensIndex[i] = -1;
     }
-    for(int i = 0;i<9;i++)
+    for (int i = 0; i < 9; i++)
     {
         initState.characterCards[i] = characters[i];
     }
@@ -153,6 +145,12 @@ int main(int argc, char *argv[])
     initState.tokensSelected = 0;
     initState.playState = REVEAL_JACK;
     SetupGame(initState, &map, &holmes, &watson, &toby, activeATokens, characters, &jackIndex, &susIndex, &turn, &round, &tokensSelected, &playState, renderer, DTPositions, actionTokens);
+    if (playState == REVEAL_JACK)
+    {
+        char address[50];
+        sprintf(address, "assets/char_cards/char_%d.jpg", jackIndex);
+        SetupRenderableFromPath(&jack, renderer, address, 573, 452, 222, 343, DOWN);
+    }
     int timer = 0, lastFrame = 0, deltaTime, isFirstTime = 1;
     while (!isQuit)
     {
@@ -183,6 +181,7 @@ int main(int argc, char *argv[])
             if (timer >= 2000) //stay in this state for a while second
             {
                 playState = DEAL_TOKEN;
+                FreeRenderable(&jack);
                 timer = 0;
             }
         }

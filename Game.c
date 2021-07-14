@@ -282,7 +282,6 @@ int MapXCoordsFromDTIndex(int index) // y of index i is equal to x of index 11 -
 
 void AddToVisiblesList(enum Orientation direction, struct node *tile, struct node **head, SDL_Point seenTiles[9], int *size)
 {
-    //tile->map.isShowingSuspect = 0;
     if (abs(direction - tile->map.mapObj.orientation) == 2)
     {
         return;
@@ -331,12 +330,6 @@ void SetupGame(struct GameState gameState, struct node **map,
                             DTPositions[gameState.watsonPos].x, DTPositions[gameState.watsonPos].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
     SetupRenderableFromPath(toby, renderer, "assets/detective_tokens/Toby.jpg",
                             DTPositions[gameState.tobyPos].x, DTPositions[gameState.tobyPos].y, TILE_WIDTH / 3, TILE_HEIGHT / 3, DOWN);
-    /*holmes->rect.x = DTPositions[gameState.holmesPos].x;
-    holmes->rect.y = DTPositions[gameState.holmesPos].y;
-    watson->rect.x = DTPositions[gameState.watsonPos].x;
-    watson->rect.y = DTPositions[gameState.watsonPos].y;
-    toby->rect.x = DTPositions[gameState.tobyPos].x;
-    toby->rect.y = DTPositions[gameState.tobyPos].y;*/
 
     for (int i = 0; i < 4; i++)
     {
