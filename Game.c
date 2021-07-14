@@ -2,6 +2,7 @@
 #include "Map.h"
 #include "Renderable.h"
 #include "math.h"
+#include "stdio.h"
 
 int MoveDT(int mouseDown, SDL_Point mousePos, struct Renderable *confirmButton, struct Renderable *dt, SDL_Point DTPositions[12])
 {
@@ -317,6 +318,70 @@ void AddToVisiblesList(enum Orientation direction, struct node *tile, struct nod
     }
 }
 
+void SelectToken(int *state, struct Renderable **clickedToken, struct Renderable *zerothToken)
+{
+    int index = (*clickedToken - zerothToken);
+    switch (index)
+    {
+    case AT_SUSPECT:
+        *state = AT_SUSPECT_REVEAL;
+        break;
+    case AT_HOLMES:
+        *state = HOLMES_MOVE;
+        break;
+    case AT_WATSON:
+        *state = WATSON_MOVE;
+        break;
+    case AT_TOBY:
+        *state = TOBY_MOVE;
+        break;
+    case AT_ROTATE1:
+        *state = TILE_ROTATE;
+        break;
+    case AT_SWAP:
+        *state = TILE_SWAP;
+        break;
+    case AT_ROTATE2:
+        *state = TILE_ROTATE;
+        break;
+    case AT_ANY:
+        *state = ANY_MOVE;
+        break;
+    default:
+        break;
+    }
+    *clickedToken = NULL;
+}
+
+void SeeTokens(struct Renderable *DT, SDL_Point DTPositions[12], struct node **map, SDL_Point seenTiles[9], int *size)
+{
+    int index = GetDTIndex(DTPositions, DT);
+    int x, y;
+    x = MapXCoordsFromDTIndex(index);
+    y = MapXCoordsFromDTIndex(11 - index);
+    struct node *startingTile = GetTileFromCoordinates(map, x, y);
+    if (index <= 2)
+    {
+        if (startingTile->map.mapObj.orientation != UP)
+            AddToVisiblesList(DOWN, startingTile, map, seenTiles, size);
+    }
+    else if (index <= 5)
+    {
+        if (startingTile->map.mapObj.orientation != RIGHT)
+            AddToVisiblesList(LEFT, startingTile, map, seenTiles, size);
+    }
+    else if (index <= 8)
+    {
+        if (startingTile->map.mapObj.orientation != DOWN)
+            AddToVisiblesList(UP, startingTile, map, seenTiles, size);
+    }
+    else if (index <= 11)
+    {
+        if (startingTile->map.mapObj.orientation != LEFT)
+            AddToVisiblesList(RIGHT, startingTile, map, seenTiles, size);
+    }
+}
+
 void SetupGame(struct GameState gameState, struct node **map,
                struct Renderable *holmes, struct Renderable *watson, struct Renderable *toby,
                struct Renderable *activeATokens[4], int characters[9], int *jackIndex,
@@ -349,3 +414,40 @@ void SetupGame(struct GameState gameState, struct node **map,
     *tokensSelected = gameState.tokensSelected;
     *playState = gameState.playState;
 }
+
+struct GameState ReadGameStateFromFile(char *address)
+{
+    struct GameState gameState;
+    FILE *fp = fopen(address, "rb");
+    fread(&gameState, sizeof(struct GameState), 1, fp);
+    fclose(fp);
+    return gameState;
+}
+void WriteGameStateToFile(char *address, struct GameState gameState)
+{
+    FILE *fp = fopen(address, "wb");
+    fwrite(&gameState, sizeof(struct GameState), 1, fp);
+    fclose(fp);
+}
+
+/*
+struct GameState
+{
+    struct MapData mData;
+    int holmesPos, watsonPos, tobyPos;
+    int ActiveTokensIndex[4];
+    int characterCards[9];
+    int jackIndex;
+    int susIndex; //where we are in the character card array
+    int turn;
+    int round;
+    int tokensSelected;
+    int playState;
+};
+struct MapData //for loading and saving
+{
+    int isRandom;
+    int susIndex[9];
+    int isShowingSuspect[9];
+    enum Orientation orientation[9];
+};*/

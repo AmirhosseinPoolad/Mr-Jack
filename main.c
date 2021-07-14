@@ -19,37 +19,10 @@ enum AppState //TODO: Implement these
     PAUSE
 };
 
-enum PlayState
-{
-    REVEAL_JACK,
-    DEAL_TOKEN,    //deal sction tokens
-    SELECT_TOKEN,  //select action tokens
-    REMOVE_TOKENS, //remove sus tokens TODO:IMPLEMENT THIS
-    TILE_SWAP,
-    TILE_ROTATE,
-    HOLMES_MOVE,
-    WATSON_MOVE,
-    TOBY_MOVE,
-    ANY_MOVE,
-    AT_SUSPECT_REVEAL,
-    HOLMES_WIN,
-    JACK_WIN
-};
 
-enum ActionTokens
-{
-    AT_SUSPECT, //removes a card from sus cards TODO: IMPLEMENT SUSPECT CARDS
-    AT_HOLMES,  //moves holmes 1 or 2 tiles clockwise
-    AT_TOBY,    //same
-    AT_WATSON,  //same
-    AT_ROTATE1, //rotate 90 or 180 degrees
-    AT_SWAP,    //swap two tiles
-    AT_ROTATE2,
-    AT_ANY //move any of the detective 1 tiles clockwise
-};
 
-void SelectToken(int *state, struct Renderable **clickedToken, struct Renderable *zerothToken);
-void SeeTokens(struct Renderable *DT, SDL_Point DTPositions[12], struct node **map, SDL_Point seenTiles[9], int *size);
+
+
 
 int main(int argc, char *argv[])
 {
@@ -126,6 +99,7 @@ int main(int argc, char *argv[])
     int turn;      //0:watson, 1:mr jack
     int round, isQuit = 0, tokensSelected, gameState, playState;
     struct GameState initState;
+    /*
     initState.mData = mapData;
     initState.holmesPos = 11;
     initState.watsonPos = 3;
@@ -144,6 +118,8 @@ int main(int argc, char *argv[])
     initState.round = 1;
     initState.tokensSelected = 0;
     initState.playState = REVEAL_JACK;
+    WriteGameStateToFile("save.bin",initState);*/
+    initState = ReadGameStateFromFile("init.bin");
     SetupGame(initState, &map, &holmes, &watson, &toby, activeATokens, characters, &jackIndex, &susIndex, &turn, &round, &tokensSelected, &playState, renderer, DTPositions, actionTokens);
     if (playState == REVEAL_JACK)
     {
@@ -461,66 +437,3 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void SelectToken(int *state, struct Renderable **clickedToken, struct Renderable *zerothToken)
-{
-    int index = (*clickedToken - zerothToken);
-    switch (index)
-    {
-    case AT_SUSPECT:
-        *state = AT_SUSPECT_REVEAL;
-        break;
-    case AT_HOLMES:
-        *state = HOLMES_MOVE;
-        break;
-    case AT_WATSON:
-        *state = WATSON_MOVE;
-        break;
-    case AT_TOBY:
-        *state = TOBY_MOVE;
-        break;
-    case AT_ROTATE1:
-        *state = TILE_ROTATE;
-        break;
-    case AT_SWAP:
-        *state = TILE_SWAP;
-        break;
-    case AT_ROTATE2:
-        *state = TILE_ROTATE;
-        break;
-    case AT_ANY:
-        *state = ANY_MOVE;
-        break;
-    default:
-        break;
-    }
-    *clickedToken = NULL;
-}
-
-void SeeTokens(struct Renderable *DT, SDL_Point DTPositions[12], struct node **map, SDL_Point seenTiles[9], int *size)
-{
-    int index = GetDTIndex(DTPositions, DT);
-    int x, y;
-    x = MapXCoordsFromDTIndex(index);
-    y = MapXCoordsFromDTIndex(11 - index);
-    struct node *startingTile = GetTileFromCoordinates(map, x, y);
-    if (index <= 2)
-    {
-        if (startingTile->map.mapObj.orientation != UP)
-            AddToVisiblesList(DOWN, startingTile, map, seenTiles, size);
-    }
-    else if (index <= 5)
-    {
-        if (startingTile->map.mapObj.orientation != RIGHT)
-            AddToVisiblesList(LEFT, startingTile, map, seenTiles, size);
-    }
-    else if (index <= 8)
-    {
-        if (startingTile->map.mapObj.orientation != DOWN)
-            AddToVisiblesList(UP, startingTile, map, seenTiles, size);
-    }
-    else if (index <= 11)
-    {
-        if (startingTile->map.mapObj.orientation != LEFT)
-            AddToVisiblesList(RIGHT, startingTile, map, seenTiles, size);
-    }
-}
