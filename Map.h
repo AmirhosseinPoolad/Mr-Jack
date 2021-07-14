@@ -48,5 +48,6 @@ struct node *GetTileFromScreenCoordinates(struct node **head, int screenX, int s
 struct node *GetTileFromSusIndex(struct node **head, int susIndex);
 void SwapNodes(struct node **head, struct node *node1, struct node *node2);
 void SwapTiles(struct node *node1, struct node *node2);
+struct MapData GetDataFromMap(struct node **head);
 
 #endif

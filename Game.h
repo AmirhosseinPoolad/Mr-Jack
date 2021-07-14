@@ -1,6 +1,11 @@
 #ifndef GAME_H
 #define GAME_H
 
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 800
+#define AT_INITPOS_X 25
+#define AT_INITPOS_Y 500
+
 #include "Map.h"
 #include "Renderable.h"
 
@@ -32,7 +37,16 @@ enum PlayState
     ANY_MOVE,
     AT_SUSPECT_REVEAL,
     HOLMES_WIN,
-    JACK_WIN
+    JACK_WIN,
+    PAUSE_MENU
+};
+
+enum PauseState
+{
+    MAIN,
+    RESUME,
+    SAVE,
+    QUIT_PLAY
 };
 
 enum ActionTokens
@@ -69,7 +83,8 @@ void SetupGame(struct GameState gameState, struct node **map,
                SDL_Renderer *renderer, SDL_Point DTPositions[12], struct Renderable actionTokens[8]);
 
 struct GameState ReadGameStateFromFile(char *address);
-
 void WriteGameStateToFile(char *address,struct GameState gameState);
+
+void RunGame(char *address);
 
 #endif

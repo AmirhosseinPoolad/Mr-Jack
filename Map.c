@@ -233,3 +233,27 @@ void SwapTiles(struct node *node1, struct node *node2) //swaps the Renderables' 
     node2->map.susObject.rect = tmp.rect;
     node2->map.susObject.orientation = tmp.orientation;
 }
+
+struct MapData GetDataFromMap(struct node **head)
+{
+    struct MapData mData;
+    mData.isRandom = 0;
+    struct node *current;
+    int index = 0;
+    for (current = *head; current != NULL; current = current->next)
+    {
+        mData.susIndex[index] = current->map.susIndex;
+        mData.isShowingSuspect[index] = current->map.isShowingSuspect;
+        mData.orientation[index] = current->map.mapObj.orientation;
+        index++;
+    }
+    return mData;
+}
+
+/*struct MapData //for loading and saving
+{
+    int isRandom;
+    int susIndex[9];
+    int isShowingSuspect[9];
+    enum Orientation orientation[9];
+};*/
