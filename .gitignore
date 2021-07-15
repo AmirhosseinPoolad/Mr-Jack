@@ -56,4 +56,4 @@ dkms.conf
 /assets
 /build
 /.vscode
-.bin
+*.bin

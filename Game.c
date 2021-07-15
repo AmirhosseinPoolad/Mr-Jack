@@ -3,6 +3,7 @@
 #include "Renderable.h"
 #include "math.h"
 #include "stdio.h"
+#include "stdlib.h"
 
 int MoveDT(int mouseDown, SDL_Point mousePos, struct Renderable *confirmButton, struct Renderable *dt, SDL_Point DTPositions[12])
 {
@@ -502,7 +503,7 @@ void RunGame(char *address)
     int jackIndex; //and the first card is jack's identity
     int susIndex;  //we use this index to access the cards. value of 1 means we never see the first card again.
     int turn;      //0:watson, 1:mr jack
-    int round, isQuit = 0, tokensSelected, gameState, playState;
+    int round, isQuit = 0, tokensSelected, playState;
     struct GameState initState;
     if (address == NULL)
     {
@@ -568,7 +569,7 @@ void RunGame(char *address)
         lastFrame = ticks;
         //1. Handle Input
         SDL_Event e;
-        SDL_Point mousePos;
+        SDL_Point mousePos = {0, 0};
         int mouseDown = 0;
         while (SDL_PollEvent(&e) != 0)
         {
