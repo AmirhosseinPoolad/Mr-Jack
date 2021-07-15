@@ -223,15 +223,16 @@ void SwapNodes(struct node **head, struct node *node1, struct node *node2)
 
 void SwapTiles(struct node *node1, struct node *node2) //swaps the Renderables' SDL_Rect and Orientation
 {
-    struct Renderable tmp = node1->map.mapObj;
+    struct Map temp;
+    temp = node1->map;
     node1->map.mapObj.rect = node2->map.mapObj.rect;
-    node2->map.mapObj.rect = tmp.rect;
-
-    tmp = node1->map.susObject;
     node1->map.susObject.rect = node2->map.susObject.rect;
-    node1->map.susObject.orientation = node2->map.susObject.orientation;
-    node2->map.susObject.rect = tmp.rect;
-    node2->map.susObject.orientation = tmp.orientation;
+    node1->map.coordinates = node2->map.coordinates;
+
+    node2->map.mapObj.rect = temp.mapObj.rect;
+    node2->map.susObject.rect = temp.susObject.rect;
+    node2->map.coordinates = temp.coordinates;
+
 }
 
 struct MapData GetDataFromMap(struct node **head)

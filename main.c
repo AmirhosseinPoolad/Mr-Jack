@@ -16,7 +16,6 @@ enum AppState //TODO: Implement these
 
 int main(int argc, char *argv[])
 {
-    srand(time(NULL));
     int appState = MAIN_MENU;
     while (appState != QUIT)
     {
@@ -47,6 +46,7 @@ int main(int argc, char *argv[])
             break;
 
         case GAME:
+            srand(time(NULL));
             RunGame(NULL);
             appState = MAIN_MENU;
             break;
@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
             printf("Input address of save file\n");
             char address[256];
             scanf("%s", address);
+            srand(time(NULL));
             RunGame(address);
             appState = MAIN_MENU;
             break;

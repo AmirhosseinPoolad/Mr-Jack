@@ -99,7 +99,8 @@ int ClickSwap(int mouseDown, SDL_Point mousePos, struct node **map)
         }
         else if ((tiles[0] != NULL) && (tiles[1] == NULL))
         {
-            tiles[1] = GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y);
+            if (tiles[0] != GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y))
+                tiles[1] = GetTileFromScreenCoordinates(map, mousePos.x, mousePos.y);
         }
     }
     if ((tiles[0] != NULL) && (tiles[1] != NULL))
@@ -284,15 +285,15 @@ int MapXCoordsFromDTIndex(int index) // y of index i is equal to x of index 11 -
 
 void AddToVisiblesList(enum Orientation direction, struct node *tile, struct node **head, SDL_Point seenTiles[9], int *size)
 {
-    if (abs(direction - tile->map.mapObj.orientation) == 2)
-    {
-        return;
-    }
     if (tile->map.isShowingSuspect != 0)
     {
         tile->map.isShowingSuspect = 0;
         seenTiles[*size] = tile->map.coordinates;
         *size += 1;
+    }
+    if (abs(direction - tile->map.mapObj.orientation) == 2)
+    {
+        return;
     }
     if (tile->map.mapObj.orientation != direction)
     {
@@ -489,6 +490,14 @@ void RunGame(char *address)
                             200, 200, 400, 400, DOWN);
     SetupRenderableFromPath(&hWin, renderer, "assets/hwins.png",
                             200, 200, 400, 400, DOWN);
+
+    struct Renderable TurnRenderable[8];
+    for (int i = 1; i <= 8; i++)
+    {
+        char address[100];
+        sprintf(address, "assets/round_tokens/r%d.jpg", i);
+        SetupRenderableFromPath(&TurnRenderable[i - 1], renderer, address, 700, 0, 100, 100, DOWN);
+    }
 
     int characters[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8}; //these are the suspect cards
     for (int i = 9 - 1; i > 0; i--)                  //we shuffle them
@@ -956,6 +965,7 @@ void RunGame(char *address)
             GORender(&jWin, renderer);
         if (playState == REVEAL_JACK)
             GORender(&jack, renderer);
+        GORender(&TurnRenderable[round - 1], renderer);
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
@@ -971,6 +981,10 @@ void RunGame(char *address)
     FreeRenderable(&jWin);
     FreeRenderable(&wTurn);
     FreeRenderable(&hWin);
+    for (int i = 0; i < 8; i++)
+    {
+        FreeRenderable(&TurnRenderable[i]);
+    }
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
