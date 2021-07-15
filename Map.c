@@ -250,11 +250,3 @@ struct MapData GetDataFromMap(struct node **head)
     }
     return mData;
 }
-
-/*struct MapData //for loading and saving
-{
-    int isRandom;
-    int susIndex[9];
-    int isShowingSuspect[9];
-    enum Orientation orientation[9];
-};*/

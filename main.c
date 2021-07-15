@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
         switch (appState)
         {
         case MAIN_MENU:
-
+        {
             printf("1.Play\n2.Load\n3.quit\n");
             int input;
             scanf("%d", &input);
@@ -44,13 +44,16 @@ int main(int argc, char *argv[])
                 break;
             }
             break;
-
+        }
         case GAME:
+        {
             srand(time(NULL));
             RunGame(NULL);
             appState = MAIN_MENU;
             break;
+        }
         case LOAD_MENU:
+        {
             printf("Input address of save file\n");
             char address[256];
             scanf("%s", address);
@@ -59,7 +62,7 @@ int main(int argc, char *argv[])
             appState = MAIN_MENU;
             break;
         }
+        }
     }
-
     return 0;
 }

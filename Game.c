@@ -537,26 +537,6 @@ void RunGame(char *address)
         initState.tokensSelected = 0;
         initState.playState = REVEAL_JACK;
     }
-    /* this makes the initial game state
-    initState.mData = mapData;
-    initState.holmesPos = 11;
-    initState.watsonPos = 3;
-    initState.tobyPos = 7;
-    for (int i = 0; i < 4; i++)
-    {
-        initState.ActiveTokensIndex[i] = -1;
-    }
-    for (int i = 0; i < 9; i++)
-    {
-        initState.characterCards[i] = characters[i];
-    }
-    initState.jackIndex = characters[0];
-    initState.susIndex = 1;
-    initState.turn = 0;
-    initState.round = 1;
-    initState.tokensSelected = 0;
-    initState.playState = REVEAL_JACK;
-    WriteGameStateToFile("save.bin",initState);*/
     else
     {
         initState = ReadGameStateFromFile(address);
@@ -852,7 +832,6 @@ void RunGame(char *address)
                 timer += deltaTime;
                 int index = characters[susIndex];
                 struct node *tile = GetTileFromSusIndex(&map, index);
-                //if(tile->map.isShowingSuspect != 0){
                 if (isFirstTime)
                 {
                     char address[50];
@@ -988,4 +967,5 @@ void RunGame(char *address)
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
+    return;
 }
